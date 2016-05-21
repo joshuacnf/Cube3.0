@@ -22,8 +22,8 @@ struct cube
     
     inline void turn(uc u)
     {
-        S = sM[u][S & MASK20] | (sM[u][(S >> 20) & MASK20] << 20) | (sM[u][(S >> 40) & MASK20] << 40);
-        C = cM[u][C & MASK20] | (cM[u][(C >> 20) & MASK20] << 20);
+        S = (ull)sM[u][S & MASK20] | ((ull)sM[u][(S >> 20) & MASK20] << 20) | ((ull)sM[u][(S >> 40) & MASK20] << 40);
+        C = (ull)cM[u][C & MASK20] | ((ull)cM[u][(C >> 20) & MASK20] << 20);
     }
 };
 

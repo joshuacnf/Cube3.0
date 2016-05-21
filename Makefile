@@ -14,4 +14,5 @@ run: genTurnMap testTurn testSpeed
 
 clean:
 	rm testTurn testSpeed
+	rm TurnMap/genTurnMap map.in
 	rm *~ \#*\#
