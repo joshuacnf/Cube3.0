@@ -51,8 +51,8 @@ const bool G[19][18] =
 const ui revTurn[18] = { 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 12, 13, 14,
     15, 16, 17 };
 
-ull sM[18][32] = {0};
-ull cM[18][32] = {0};
+ull sM[18][0xBDEF8] = {0};
+ull cM[18][0xBDEF8] = {0};
 
 //////////////////////////////FUNCTIONS///////////////////////////////
 
@@ -75,14 +75,6 @@ inline int maxint_(const int &x, const int &y)
 {
     long long m = (x - y) >> 31;
     return (y & m) | (x & ~m);
-}
-
-inline void bitsSwap5(ull &x, ui i, ui j)
-{
-    ull a = ((x >> i) & 0x1FULL) << j;
-    ull b = ((x >> j) & 0x1FULL) << i;
-    x = (x & ~(0x1FULL << i)) | b;
-    x = (x & ~(0x1FULL << j)) | a;
 }
 
 #endif /* globals_h */

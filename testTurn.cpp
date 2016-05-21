@@ -10,14 +10,27 @@ using namespace std;
 cube A;
 int seq[N] = {0}, rseq[N] = {0};
 
+void genSeq()
+{
+    for (int i = 0; i < N; i++)
+        seq[i] = i % 1;
+    for (int i = 0; i < N >> 1; i++)
+        swap_(seq[rand() % N], seq[rand() % N]);
+    
+    for (int i = 0; i < N; i++)
+        rseq[i] = revTurn[seq[N - 1 - i]];
+}
+
 void init()
 {
+    int m;
+    scanf("%d", &m);
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 24; j++)
+        for (int j = 0; j < m; j++)
             scanf("%llu", &sM[i][j]);
     
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 24; j++)
+        for (int j = 0; j < m; j++)
             scanf("%llu", &cM[i][j]);
 }
 
@@ -81,17 +94,6 @@ void testSingleTurns()
     //test 180-degree turns
 }
 
-void genSeq()
-{
-    for (int i = 0; i < N; i++)
-        seq[i] = i % 1;
-    for (int i = 0; i < N >> 1; i++)
-        swap_(seq[rand() % N], seq[rand() % N]);
-    
-    for (int i = 0; i < N; i++)
-        rseq[i] = revTurn[seq[i]];
-}
-
 void testComposedTurns()
 {
     genSeq();
@@ -100,21 +102,22 @@ void testComposedTurns()
     for (int i = N - 1; i >= 0; i--)
         A.turn(rseq[i]);
     if (!A.solved())
-        printf("Randomized cube-turn error!\n");
-    else printf("Cube-turn correctly implemented.\n");
+        printf("Randomized cube-turn error!\n\n");
+    else printf("Cube-turn correctly implemented.\n\n");
 }
 
-void testSpeed()
+void testTurnSpeed()
 {
     double t;
     time_t s = clock();
-    for (uc v = 0; v < 18; v++)
-        for (int i = 0; i < N; i++)
-            A.turn(v);
+    for (int i = 0; i < N; i++)
+        A.turn(seq[i]);
+    for (int i = 0; i < N; i++)
+        A.turn(seq[i]);
     if (!A.solved()) return;
     t = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
     printf("Time: %lf\n", t);
-    printf("%d turns/second\n", (int)((N * 18) / t));
+    printf("%d turns/second\n", (int)((N << 1) / t));
 }
 
 int main()
@@ -123,6 +126,6 @@ int main()
     init();
     testSingleTurns();
     testComposedTurns();
-    testSpeed();
+    //testSpeed();
     return 0;
 }

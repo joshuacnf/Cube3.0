@@ -6,8 +6,8 @@ using namespace std;
 ull sM0[18][32] = {0};
 ull cM0[18][32] = {0};
 
-ull sM[18][760] = {0};
-ull cM[18][760] = {0};
+ull sM[18][1048576] = {0};
+ull cM[18][1048576] = {0};
 
 string mapName[] =
 { "F", "B", "U", "D", "L", "R", "F_", "B_", "U_", "D_", "L_", "R_", "FF", "BB", "UU", "DD", "LL", "RR" };
@@ -74,28 +74,32 @@ void work()
     for (int t = 0; t < 18; t++)
         for (ull i = 0; i < 24; i++)
             for (ull j = 0; j < 24; j++)
-            {
-                sM[t][i | (j << 5)] = sM0[t][i] | (sM0[t][j] << 5);
-                cM[t][i | (j << 5)] = cM0[t][i] | (cM0[t][j] << 5);
-            }
+                for (ull k = 0; k < 24; k++)
+                    for (ull w = 0; w < 24; w++)
+                    {
+                        sM[t][i | (j << 5) | (k << 10) | (w << 15)] = sM0[t][i] | (sM0[t][j] << 5) | (sM0[t][k] << 10) | (sM0[t][w] << 15);
+                        cM[t][i | (j << 5) | (k << 10) | (w << 15)] = cM0[t][i] | (cM0[t][j] << 5) | (cM0[t][k] << 10) | (cM0[t][w] << 15);
+                    }
 }
 
 void print()
 {
+    int m = 0xBDEF8;
+    printf("%d\n", m);
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 24; j++)
-            printf("%llu ", sM0[i][j]);
+        for (int j = 0; j < m; j++)
+            printf("%llu ", sM[i][j]);
     
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 24; j++)
-            printf("%llu ", cM0[i][j]);
+        for (int j = 0; j < m; j++)
+            printf("%llu ", cM[i][j]);
 }
 
 int main()
 {
     freopen("map.in", "w", stdout);
     dfs(0, 18);
-    //work();
+    work();
     print();
     return 0;
 }
