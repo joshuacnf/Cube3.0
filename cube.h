@@ -27,17 +27,13 @@ struct cube
 
 	for (i = 0; i < 40; i += 5)
 	{
-	    S0 |= sM[u][S & MASK5] << i;
-	    C0 |= cM[u][C & MASK5] << i;
-	    S >>= 5, C >>= 5;
+	    S0 |= ((ull)sM[u][(S >> i) & MASK5]) << i;
+	    C0 |= ((ull)cM[u][(C >> i) & MASK5]) << i;
 	}
 	for (; i < 60; i += 5)
-	{
-	    S0 |= sM[u][S & MASK5] << i;
-	    S >>= 5;
-	}
-
-        S = S0, C = C0; 
+	    S0 |= ((ull)sM[u][(S >> i) & MASK5]) << i;
+	
+	S = S0, C = C0; 
     }
 };
 
