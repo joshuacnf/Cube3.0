@@ -22,8 +22,12 @@ struct cube
     
     inline void turn(uc u)
     {
-        S = sM[u][S & MASK20] | (sM[u][(S >> 20) & MASK20] << 20) | (sM[u][(S >> 40) & MASK20] << 40);
-        C = cM[u][C & MASK20] | (cM[u][(C >> 20) & MASK20] << 20);
+	ull S0 = 0, C0 = 0;
+	for (int i = 0; i < 60; i += 10)
+	    S0 |= sM[u][(S >> i) & MASK10] << i;
+	for (int i = 0; i < 40; i += 10)
+	    C0 |= cM[u][(C >> i) & MASK10] << i;
+        S = S0, C = C0; 
     }
 };
 
