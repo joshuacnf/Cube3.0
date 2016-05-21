@@ -5,7 +5,7 @@
 using namespace std;
 
 cube A;
-ui cnt = 0, cnt_ = 0, cnt__;
+ui cnt = 0, cnt_ = 0, cnt__ = 0;
 uc maxd = 1, d = 0;
 
 void init()

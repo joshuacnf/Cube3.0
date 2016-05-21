@@ -20,13 +20,23 @@ struct cube
                 C == 0x000000398a418820ULL;
     }
     
-    inline void turn(uc u)
+    inline void turn(const uc u)
     {
+	int i;
 	ull S0 = 0, C0 = 0;
-	for (int i = 0; i < 60; i += 10)
-	    S0 |= sM[u][(S >> i) & MASK10] << i;
-	for (int i = 0; i < 40; i += 10)
-	    C0 |= cM[u][(C >> i) & MASK10] << i;
+
+	for (i = 0; i < 40; i += 5)
+	{
+	    S0 |= sM[u][S & MASK5] << i;
+	    C0 |= cM[u][C & MASK5] << i;
+	    S >>= 5, C >>= 5;
+	}
+	for (; i < 60; i += 5)
+	{
+	    S0 |= sM[u][S & MASK5] << i;
+	    S >>= 5;
+	}
+
         S = S0, C = C0; 
     }
 };

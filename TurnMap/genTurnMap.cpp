@@ -82,22 +82,22 @@ void work()
 
 void print()
 {
-    int m = 760;
+    int m = 24;
     printf("%d\n", m);
     for (int i = 0; i < 18; i++)
         for (int j = 0; j < m; j++)
-            printf("%llu ", sM[i][j]);
+            printf("%llu ", sM0[i][j]);
     
     for (int i = 0; i < 18; i++)
         for (int j = 0; j < m; j++)
-            printf("%llu ", cM[i][j]);
+            printf("%llu ", cM0[i][j]);
 }
 
 int main()
 {
     freopen("map.in", "w", stdout);
     dfs(0, 18);
-    work();
+    //work();
     print();
     return 0;
 }
