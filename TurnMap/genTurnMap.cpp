@@ -85,12 +85,13 @@ void print()
     int m = 760;
     printf("%d\n", m);
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
+	for (int j = 0; j < m; j++)
             printf("%llu ", sM[i][j]);
     
     for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
-            printf("%llu ", cM[i][j]);
+	for (int j = 0; j < m; j++)
+	    printf("%llu ", cM[i][j]);
+    
 }
 
 int main()
