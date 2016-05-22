@@ -54,7 +54,72 @@ const ui revTurn[18] = { 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 12, 13, 14,
 us sM[18][760] = {0};
 us cM[18][760] = {0};
 
-//////////////////////////////FUNCTIONS///////////////////////////////
+/////////////////////////////////DATA STRUCTURES///////////////////////////////
+
+
+#define N 0x800000
+struct hash_table
+{
+    struct node
+    {
+        ull S, C;
+        node *next;
+        
+        inline node() {}
+        inline node(const ull S_, const ull C_):S(S_), C(C_), next(0) {}
+    };
+    
+    hash_table()
+    {
+        I = cnt = 0;
+        memset(A, 0, sizeof(A));
+        memset(T, 0, sizeof(T));
+    }
+    
+    inline void insert(ull S, ull C)
+    {
+        if (inTable(S, C)) return;
+        
+        int k = S & (N - 1);
+        node *p = newNode(S, C); p->next = T[k]; T[k] = p;
+        cnt++;
+    }
+    
+    inline int size()
+    {
+        return cnt;
+    }
+    
+    inline void clear()
+    {
+        I = cnt = 0;
+        memset(T, 0, sizeof(T));
+    }
+    
+private:
+    node *T[N]; int cnt;
+    node A[N]; int I;
+    
+    inline node* newNode(ull S, ull C)
+    {
+        A[I].S = S, A[I].C = C;
+        return &A[I++];
+    }
+    
+    inline bool inTable(ull S, ull C)
+    {
+        int k = S & (N - 1);
+        for (node *p = T[k]; p; p = p->next)
+            if (p->S == S && p->C == C)
+                return true;
+        return false;
+    }
+};
+#undef N
+
+
+
+////////////////////////////////////FUNCTIONS/////////////////////////////////
 
 template <typename T>
 inline void swap_(T &x, T &y) { T z = y; y = x; x = z; }

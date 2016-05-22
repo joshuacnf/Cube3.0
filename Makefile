@@ -8,11 +8,15 @@ testTurn: cube.h globals.h testTurn.cpp
 testSpeed: cube.h globals.h testSpeed.cpp
 	g++ testSpeed.cpp -Ofast -o testSpeed
 
-run: genTurnMap testTurn testSpeed
+testCorrectness: cube.h globals.h testCorrectness.cpp
+	g++ testCorrectness.cpp -Ofast -o testCorrectness
+
+test: genTurnMap testTurn testSpeed testCorrectness
 	./testTurn 
 	./testSpeed
+	./testCorrectness
 
 clean:
-	rm testTurn testSpeed
+	rm testTurn testSpeed testCorrectness
 	rm TurnMap/genTurnMap map.in
 	rm *~ \#*\#
