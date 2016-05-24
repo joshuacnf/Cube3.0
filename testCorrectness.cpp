@@ -14,7 +14,7 @@ hash_table S;
 
 void init()
 {
-    freopen("/Users/Joshua/Desktop/Computer Science/Rubik's Cube/Cube3.0/Cube3.0/map.in", "r", stdin);
+    freopen("map.in", "r", stdin);
     int m;
     scanf("%d", &m);
     for (int i = 0; i < 18; i++)
