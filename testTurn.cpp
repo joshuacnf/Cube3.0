@@ -27,11 +27,11 @@ void init()
     scanf("%d", &m);
     for (int i = 0; i < 18; i++)
         for (int j = 0; j < m; j++)
-            scanf("%u", &sM[i][j]);
+            scanf("%hu", &sM[i][j]);
     
     for (int i = 0; i < 18; i++)
         for (int j = 0; j < m; j++)
-            scanf("%u", &cM[i][j]);
+            scanf("%hu", &cM[i][j]);
 }
 
 void testSingleTurns()
