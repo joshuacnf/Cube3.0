@@ -2,6 +2,7 @@
 #define globals_h
 
 #include <string>
+#include <cstring>
 
 //////////////////////////////MACROS & CONSTANTS///////////////////////
 

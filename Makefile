@@ -17,6 +17,6 @@ test: genTurnMap testTurn testSpeed testCorrectness
 	./testCorrectness
 
 clean:
-	rm testTurn testSpeed testCorrectness
 	rm TurnMap/genTurnMap map.in
+	rm testTurn testSpeed testCorrectness
 	rm *~ \#*\#
