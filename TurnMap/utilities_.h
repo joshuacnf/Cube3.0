@@ -1,8 +1,8 @@
 #ifndef utilities_h
 #define utilities_h
 
-#include "globals.h"
-#include "cube.h"
+#include "globals_.h"
+#include "cube_.h"
 #include <cstring>
 #include <cstdlib>
 

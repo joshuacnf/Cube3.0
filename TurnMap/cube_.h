@@ -1,7 +1,7 @@
 #ifndef cube_h
 #define cube_h
 
-#include "globals.h"
+#include "globals_.h"
 
 struct cube
 {

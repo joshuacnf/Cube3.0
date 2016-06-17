@@ -1,22 +1,32 @@
-genTurnMap: TurnMap/genTurnMap.cpp TurnMap/cube.h TurnMap/globals.h
-	g++ TurnMap/genTurnMap.cpp -Ofast -o TurnMap/genTurnMap
+CC = g++
+CFLAGS = -Ofast -Wno-unused-result
+
+default: map.in database.in
+
+map.in: TurnMap/genTurnMap.cpp TurnMap/cube_.h TurnMap/globals_.h
+	$(CC) TurnMap/genTurnMap.cpp $(CFLAGS) -o TurnMap/genTurnMap
 	TurnMap/genTurnMap
 
-testTurn: cube.h globals.h testTurn.cpp
-	g++ testTurn.cpp -Ofast -o testTurn
+database.in: PatternDB/genPatternDB.cpp
+	$(CC) PatternDB/genPatternDB.cpp $(CFLAGS) -o PatternDB/genPatternDB
+	PatternDB/genPatternDB
 
-testSpeed: cube.h globals.h testSpeed.cpp
-	g++ testSpeed.cpp -Ofast -o testSpeed
+testTurn: cube.h globals.h testTurn.cpp
+	$(CC) testTurn.cpp $(CFLAGS) -o testTurn
 
 testCorrectness: cube.h globals.h testCorrectness.cpp
-	g++ testCorrectness.cpp -Ofast -o testCorrectness
+	$(CC) testCorrectness.cpp $(CFLAGS) -o testCorrectness
 
-test: genTurnMap testTurn testSpeed testCorrectness
-	./testTurn 
-	./testSpeed
+testSpeed: cube.h globals.h testSpeed.cpp
+	$(CC) testSpeed.cpp $(CFLAGS) -o testSpeed
+
+test: map.in database.in testTurn testCorrectness testSpeed
+	./testTurn
 	./testCorrectness
+	./testSpeed
 
-clean:
-	rm TurnMap/genTurnMap map.in
-	rm testTurn testSpeed testCorrectness
-	rm *~ \#*\#
+clean all:	
+	-rm TurnMap/genTurnmap map.in
+	-rm PatternDB/genPatternDB database.in
+	-rm testTurn testCorrectness testSpeed
+	-rm *~ \#*\#

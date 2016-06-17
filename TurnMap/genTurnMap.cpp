@@ -1,13 +1,13 @@
 #include <cstdio>
 #include <string>
-#include "utilities.h"
+#include "utilities_.h"
 using namespace std;
 
 ull sM0[18][32] = {0};
 ull cM0[18][32] = {0};
 
-ull sM[18][1048576] = {0};
-ull cM[18][1048576] = {0};
+ull sM[18][760] = {0};
+ull cM[18][760] = {0};
 
 string mapName[] =
 { "F", "B", "U", "D", "L", "R", "F_", "B_", "U_", "D_", "L_", "R_", "FF", "BB", "UU", "DD", "LL", "RR" };
@@ -80,25 +80,25 @@ void work()
 	    }
 }
 
-void print()
+void write()
 {
-    int m = 760;
-    printf("%d\n", m);
-    for (int i = 0; i < 18; i++)
-	for (int j = 0; j < m; j++)
-            printf("%llu ", sM[i][j]);
+    FILE *out = fopen("map.in", "w");
     
     for (int i = 0; i < 18; i++)
-	for (int j = 0; j < m; j++)
-	    printf("%llu ", cM[i][j]);
+	for (int j = 0; j < 760; j++)
+            fprintf(out, "%llu ", sM[i][j]);
     
+    for (int i = 0; i < 18; i++)
+	for (int j = 0; j < 760; j++)
+	    fprintf(out, "%llu ", cM[i][j]);
+
+    fclose(out);
 }
 
 int main()
 {
-    freopen("map.in", "w", stdout);
     dfs(0, 18);
     work();
-    print();
+    write();
     return 0;
 }

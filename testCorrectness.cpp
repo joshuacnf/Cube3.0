@@ -2,6 +2,19 @@
 #include "cube.h"
 using namespace std;
 
+struct node
+{
+    ull S, C;
+    node *next;
+        
+    inline node() {}
+    inline node(const ull S_, const ull C_):S(S_), C(C_), next(0) {}
+
+    bool operator ==(const node &B) { return S == B.S && C == B.C; }
+
+    inline ull hash() const { return S; }
+};
+
 const int ans[] =
 {1, 18, 243, 3240, 43239, 574908, 7618438, 100803036, 1332343288};
 
@@ -10,25 +23,11 @@ int res[10] = {0};
 cube A;
 uc maxd = 0, d = 0;
 
-hash_table S;
-
-void init()
-{
-    freopen("map.in", "r", stdin);
-    int m;
-    scanf("%d", &m);
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
-            scanf("%hu", &sM[i][j]);
-    
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
-            scanf("%hu", &cM[i][j]);
-}
+hash_table<node> S;
 
 void dfs(uc u)
 {
-    S.insert(A.S, A.C);
+    S.insert(node(A.S, A.C));
     if (d == maxd) return;
     for (uc v = 0; v < 18; v++)
         if (G[u][v])
@@ -47,7 +46,7 @@ void work()
     maxd = 0;
     while (maxd < DEPTH)
     {
-        printf("%d\n", maxd);
+        printf("Search Depth: %d\n", maxd);
         S.clear();
         dfs(18);
         res[maxd] = S.size();
@@ -65,14 +64,13 @@ void check()
             printf("Depth: %d\nError:%d %d\n", i, ans[i], res[i]);
             return;
         }
-    printf("Nodes correctly generated.\n");
+    printf("Nodes correctly generated.\n\n");
 }
 
 #undef DEPTH
 
 int main()
 {
-    init();
     work();
     check();
     return 0;

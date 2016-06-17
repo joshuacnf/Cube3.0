@@ -21,19 +21,6 @@ void genSeq()
         rseq[i] = revTurn[seq[N - 1 - i]];
 }
 
-void init()
-{
-    int m;
-    scanf("%d", &m);
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
-            scanf("%hu", &sM[i][j]);
-    
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < m; j++)
-            scanf("%hu", &cM[i][j]);
-}
-
 void testSingleTurns()
 {
     for (int i = 0; i < 18; i++)
@@ -122,8 +109,6 @@ void testTurnSpeed()
 
 int main()
 {
-    freopen("map.in", "r", stdin);
-    init();
     testSingleTurns();
     testComposedTurns();
     //testSpeed();
