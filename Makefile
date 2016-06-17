@@ -26,7 +26,7 @@ test: map.in database.in testTurn testCorrectness testSpeed
 	./testSpeed
 
 clean all:	
-	-rm TurnMap/genTurnmap map.in
+	-rm TurnMap/genTurnMap map.in
 	-rm PatternDB/genPatternDB database.in
 	-rm testTurn testCorrectness testSpeed
 	-rm *~ \#*\#
