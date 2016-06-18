@@ -33,14 +33,14 @@ struct database_
 	cnt++;
 	trans(k);
 	int idx = index();
-	T[cantor()][idx >> 1] |= v << ((idx & 1) << 2);
+	T[cantor()][idx] = v;//|= v << ((idx & 1) << 2);
     }
 
     inline uc load(ull k)
     {
 	trans(k);
 	int idx = index();
-	return (T[cantor()][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
+	return /*(*/T[cantor()][idx];// >> ((idx & 1) << 2)) & MASK4;
     }
     
     void write()
@@ -140,9 +140,10 @@ void bfs()
 
 int main()
 {
-    printf("Genrating Pattern Database...\n")
+    printf("Genrating Pattern Database...\n");
     bfs();
     DB_.write();
     printf("Total Positions: %d\n", DB_.size());
+    printf("\n");
     return 0;
 }

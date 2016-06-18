@@ -4,6 +4,7 @@
 #include <string>
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 
 //////////////////////////////MACROS & CONSTANTS///////////////////////
 
@@ -151,7 +152,10 @@ struct database
     { 
 	FILE *in = fopen("database.in", "r");
 	if (!in) 
-	    fprintf(stderr, "Pattern Database Initialization Failed.\n");
+	{
+	    fprintf(stderr, "Failed to initialize pattern database.\n");
+	    exit(0);
+	}
 	for (int i = 0; i < N; i++)
 	    for (int j = 0; j < M; j++)
 		fscanf(in, "%hhu", &T[i][j]);
@@ -168,7 +172,7 @@ struct database
     {
 	trans(k);
 	int idx = index();
-	return (T[cantor()][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
+	return /*(*/T[cantor()][idx];// >> ((idx & 1) << 2)) & MASK4;
     }
 
 private:

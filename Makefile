@@ -1,23 +1,27 @@
 CC = g++
 CFLAGS = -Ofast -Wno-unused-result
 
-default: map.in database.in
+default: map.in database.in IDA
+	./IDA
 
-map.in: TurnMap/genTurnMap.cpp TurnMap/cube_.h TurnMap/globals_.h
+map.in: TurnMap/globals_.h TurnMap/cube_.h TurnMap/genTurnMap.cpp
 	$(CC) TurnMap/genTurnMap.cpp $(CFLAGS) -o TurnMap/genTurnMap
-	TurnMap/genTurnMap
+	TurnMap/./genTurnMap
 
-database.in: PatternDB/genPatternDB.cpp
+database.in: globals.h cube.h PatternDB/genPatternDB.cpp
 	$(CC) PatternDB/genPatternDB.cpp $(CFLAGS) -o PatternDB/genPatternDB
-	PatternDB/genPatternDB
+	PatternDB/./genPatternDB
 
-testTurn: cube.h globals.h testTurn.cpp
+IDA: globals.h cube.h IDA.cpp
+	$(CC) IDA.cpp $(CFLAGS) -o IDA
+
+testTurn: globals.h cube.h testTurn.cpp
 	$(CC) testTurn.cpp $(CFLAGS) -o testTurn
 
-testCorrectness: cube.h globals.h testCorrectness.cpp
+testCorrectness: globals.h cube.h testCorrectness.cpp
 	$(CC) testCorrectness.cpp $(CFLAGS) -o testCorrectness
 
-testSpeed: cube.h globals.h testSpeed.cpp
+testSpeed: globals.h cube.h testSpeed.cpp
 	$(CC) testSpeed.cpp $(CFLAGS) -o testSpeed
 
 test: map.in database.in testTurn testCorrectness testSpeed
@@ -25,8 +29,8 @@ test: map.in database.in testTurn testCorrectness testSpeed
 	./testCorrectness
 	./testSpeed
 
-clean all:	
+clean all:
 	-rm TurnMap/genTurnMap map.in
 	-rm PatternDB/genPatternDB database.in
-	-rm testTurn testCorrectness testSpeed
+	-rm IDA testTurn testCorrectness testSpeed
 	-rm *~ \#*\#
