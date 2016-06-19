@@ -160,12 +160,6 @@ struct database
 	    for (int j = 0; j < (M >> 1); j++)
 		fscanf(in, "%hhu", &T[i][j]);
 	fclose(in);
-	
-	fac[0] = pow3[0] = 1;
-	for (int i = 1; i < 10; i++)
-	    fac[i] = fac[i - 1] * i;
-	for (int i = 1; i < 10; i++)
-	    pow3[i] = pow3[i - 1] * 3;
     }
 
     inline uc load(ull k)
@@ -177,7 +171,8 @@ struct database
 
 private:
     uc T[N][M >> 1];
-    ui fac[10], pow3[10]; uc tmp[8];
+    const ui fac[10] = {1, 1, 2, 6, 24, 120, 720, 5040};
+    uc tmp[8];
     
     inline void trans(ull k)
     {
@@ -198,7 +193,7 @@ private:
 	{
 	    uc t = 0;
 	    for (uc j = i + 1; j < 8; j++)
-		t += (tmp[j] & 7) < (tmp[i] & 7);
+		t += (tmp[j] & (uc)7) < (tmp[i] & (uc)7);
 	    idx += t * fac[7 - i];
 	}
 	return idx;
@@ -207,8 +202,13 @@ private:
     inline ui index()
     {
 	ui idx = 0;
-	for (uc i = 0; i < 7; i++)
-	    idx += pow3[i] * (tmp[i] >> 3);
+	idx += tmp[0] >> 3;
+	idx += (ui)3 * (tmp[1] >> 3);
+	idx += (ui)9 * (tmp[2] >> 3);
+	idx += (ui)27 * (tmp[3] >> 3);
+	idx += (ui)81 * (tmp[4] >> 3);
+	idx += (ui)243 * (tmp[5] >> 3);
+	idx += (ui)729 * (tmp[6] >> 3);
 	return idx;
     }
 };

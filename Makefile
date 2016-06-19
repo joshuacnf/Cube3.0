@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Ofast -Wno-unused-result
+CFLAGS = -std=gnu++11 -Ofast -Wno-unused-result
 
 default: map.in database.in IDA
 	./IDA
