@@ -32,22 +32,23 @@ struct database_
     {
 	cnt++;
 	trans(k);
-	int idx = index();
-	T[cantor()][idx] = v;//|= v << ((idx & 1) << 2);
+	ui idx = index();
+	T[cantor()][idx >> 1] |= v << ((idx & 1) << 2);
     }
 
     inline uc load(ull k)
     {
 	trans(k);
-	int idx = index();
-	return /*(*/T[cantor()][idx];// >> ((idx & 1) << 2)) & MASK4;
+	ui idx = index();
+	return (T[cantor()][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
     }
     
     void write()
     {
+	T[0][0] &= ~MASK4;
 	FILE *out = fopen("database.in", "w");
 	for (int i = 0; i < N; i++)
-	    for (int j = 0; j < M; j++)
+	    for (int j = 0; j < (M >> 1); j++)
 		fprintf(out, "%hhu ", T[i][j]);
 	fclose(out);
     }

@@ -157,7 +157,7 @@ struct database
 	    exit(0);
 	}
 	for (int i = 0; i < N; i++)
-	    for (int j = 0; j < M; j++)
+	    for (int j = 0; j < (M >> 1); j++)
 		fscanf(in, "%hhu", &T[i][j]);
 	fclose(in);
 	
@@ -171,24 +171,24 @@ struct database
     inline uc load(ull k)
     {
 	trans(k);
-	int idx = index();
-	return /*(*/T[cantor()][idx];// >> ((idx & 1) << 2)) & MASK4;
+	ui idx = index();
+	return (T[cantor()][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
     }
 
 private:
-    uc T[N][M];
-    ui fac[10], pow3[10]; uc tmp[10];
+    uc T[N][M >> 1];
+    ui fac[10], pow3[10]; uc tmp[8];
     
     inline void trans(ull k)
     {
 	tmp[0] = k & MASK5;
-	tmp[1] = (k >> 5) & MASK5;
-	tmp[2] = (k >> 10) & MASK5;
-	tmp[3] = (k >> 15) & MASK5;
-	tmp[4] = (k >> 20) & MASK5;
-	tmp[5] = (k >> 25) & MASK5;
-	tmp[6] = (k >> 30) & MASK5;
-	tmp[7] = (k >> 35) & MASK5;
+	tmp[1] = (k >>= 5) & MASK5;
+	tmp[2] = (k >>= 5) & MASK5;
+	tmp[3] = (k >>= 5) & MASK5;
+	tmp[4] = (k >>= 5) & MASK5;
+	tmp[5] = (k >>= 5) & MASK5;
+	tmp[6] = (k >>= 5) & MASK5;
+	tmp[7] = (k >>= 5) & MASK5;
     }
     
     inline ui cantor()
@@ -226,6 +226,9 @@ inline T min_(const T &x, const T &y) { return x < y? x: y; }
 
 template <typename T>
 inline T max_(const T &x, const T &y) { return x > y? x: y; }
+
+template <typename T>
+inline T abs_(const T &x) { return x < 0? -x: x; }
 
 inline int minint_(const int &x, const int &y)
 {

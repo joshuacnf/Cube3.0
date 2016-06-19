@@ -8,9 +8,13 @@ map.in: TurnMap/globals_.h TurnMap/cube_.h TurnMap/genTurnMap.cpp
 	$(CC) TurnMap/genTurnMap.cpp $(CFLAGS) -o TurnMap/genTurnMap
 	TurnMap/./genTurnMap
 
-database.in: globals.h cube.h PatternDB/genPatternDB.cpp
-	$(CC) PatternDB/genPatternDB.cpp $(CFLAGS) -o PatternDB/genPatternDB
-	PatternDB/./genPatternDB
+database.in: globals.h cube.h PatternDB/genPatDB.cpp
+	$(CC) PatternDB/genPatDB.cpp $(CFLAGS) -o PatternDB/genPatDB
+	PatternDB/./genPatDB
+
+evalPatDB: map.in database.in globals.h cube.h PatternDB/evalPatDB.cpp
+	$(CC) PatternDB/evalPatDB.cpp $(CFLAGS) -o PatternDB/evalPatDB
+	PatternDB/./evalPatDB
 
 IDA: globals.h cube.h IDA.cpp
 	$(CC) IDA.cpp $(CFLAGS) -o IDA
@@ -18,19 +22,19 @@ IDA: globals.h cube.h IDA.cpp
 testTurn: globals.h cube.h testTurn.cpp
 	$(CC) testTurn.cpp $(CFLAGS) -o testTurn
 
-testCorrectness: globals.h cube.h testCorrectness.cpp
-	$(CC) testCorrectness.cpp $(CFLAGS) -o testCorrectness
+testNodeGen: globals.h cube.h testNodeGen.cpp
+	$(CC) testNodeGen.cpp $(CFLAGS) -o testNodeGen
 
 testSpeed: globals.h cube.h testSpeed.cpp
 	$(CC) testSpeed.cpp $(CFLAGS) -o testSpeed
 
-test: map.in database.in testTurn testCorrectness testSpeed
+test: map.in database.in testTurn testNodeGen testSpeed
 	./testTurn
-	./testCorrectness
+	./testNodeGen
 	./testSpeed
 
-clean all:
+clean:
 	-rm TurnMap/genTurnMap map.in
-	-rm PatternDB/genPatternDB database.in
-	-rm IDA testTurn testCorrectness testSpeed
+	-rm PatternDB/evalPatDB PatternDB/genPatDB database.in
+	-rm IDA testTurn testNodeGen testSpeed
 	-rm *~ \#*\#

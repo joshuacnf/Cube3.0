@@ -27,12 +27,12 @@ int main()
     while (maxd < 9)
     {
         d = cnt = 0;
-        double e; clock_t s = clock();
+        clock_t s = clock();
         dfs(18);
-        e = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
+        double t = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
         printf("Search Depth: %d\n", maxd);
-        printf("Time: %lf\n", e);
-        printf("Nodes Generated: %d (%d nodes/second)\n", cnt, (int)(cnt / e));
+        printf("Time: %lf\n", t);
+        printf("Nodes Generated: %d (%d nodes/second)\n", cnt, (int)(cnt / t));
         printf("\n");
         maxd++;
     }

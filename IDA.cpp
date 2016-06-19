@@ -6,9 +6,8 @@
 #define MAXTURN 14
 
 database DB; cube A;
+ui cnt; uc cutoff = 0, d = 0;
 uc ans[MAXTURN] = {0}, len = 0;
-uc d = 0, cutoff = 0, cutoff_ = 0;
-ui cnt = 0;
 
 void init()
 {
@@ -26,20 +25,16 @@ bool dfs(uc u)
 {
     cnt++;
     if (A.solved()) return true;
-
-    uc cost = DB.load(A.C) + d;
-    if (cost > cutoff)
-    {
-	cutoff_ = cutoff_ > cost? cost: cutoff_;
+    
+    if (DB.load(A.C) + d > cutoff)
 	return false;
-    }
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{
 	    ull S0 = A.S, C0 = A.C; d++; 
 	    A.turn(v); bool solved = dfs(v); 
-	    A.S = S0, A.C = C0, d--;
+	    A.S = S0, A.C = C0; d--;
 
 	    if (solved)
 	    {
@@ -57,11 +52,9 @@ void IDA()
     printf("\nSearching...\n");
     
     clock_t s = clock();
-    do
-    {
-	cutoff = cutoff_;
-	cutoff_ = 21;
-    }while (!dfs(18));
+    cnt = 0; cutoff = 0;
+    while (!dfs(18))
+	cutoff++;
     double t = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
     
     printf("Time: %lf\n", t);
@@ -91,3 +84,5 @@ int main()
     printf("\n");
     return 0;
 }
+
+#undef MAXTURN
