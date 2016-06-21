@@ -9,7 +9,6 @@ ui cnt; uc maxd = 1, d = 0;
 void dfs(uc u)
 {
     cnt++;
-    DB.load(A.C);
     if (d == maxd) return;
     for (uc v = 0; v < 18; v++)
         if (G[u][v])

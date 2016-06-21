@@ -19,11 +19,6 @@ struct cube
         return S == 0x05a928398a418820ULL &&
                 C == 0x000000398a418820ULL;
     }
-
-    inline ui cost()
-    {
-	
-    }
     
     inline void turn(uc u)
     {

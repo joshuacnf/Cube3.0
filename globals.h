@@ -143,15 +143,15 @@ private:
 };
 
 
-#define N 40320 //8!
-#define M 2187 //3^7
+#define N 40320 //8!: 40320
+#define M 2187 //3^7: 2187
 
 struct database
 {
     database()
     { 
 	FILE *in = fopen("database.in", "r");
-	if (!in) 
+	if (!in)
 	{
 	    fprintf(stderr, "Failed to initialize pattern database.\n");
 	    exit(0);
@@ -170,9 +170,7 @@ struct database
     }
 
 private:
-    uc T[N][M >> 1];
-    const ui fac[10] = {1, 1, 2, 6, 24, 120, 720, 5040};
-    uc tmp[8];
+    uc T[N][M >> 1], tmp[8]; //40960, 2304
     
     inline void trans(ull k)
     {
@@ -188,27 +186,35 @@ private:
     
     inline ui cantor()
     {
+	tmp[0] &= 7; tmp[1] &= 7; tmp[2] &= 7; tmp[3] &= 7;
+	tmp[4] &= 7; tmp[5] &= 7; tmp[6] &= 7; tmp[7] &= 7;
+
 	ui idx = 0;
-	for (uc i = 0; i < 7; i++)
-	{
-	    uc t = 0;
-	    for (uc j = i + 1; j < 8; j++)
-		t += (tmp[j] & (uc)7) < (tmp[i] & (uc)7);
-	    idx += t * fac[7 - i];
-	}
+	
+	idx += tmp[0] * 5040;
+	idx += (tmp[1] - (tmp[0] < tmp[1])) * 720;
+	idx += (tmp[2] - (tmp[0] < tmp[2]) - (tmp[1] < tmp[2])) * 120;
+	idx += (tmp[3] - 
+		(tmp[0] < tmp[3]) - (tmp[1] < tmp[3]) - (tmp[2] < tmp[3])) * 24;
+	idx += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6]) + (tmp[4] > tmp[7])) * 6;
+	idx += ((tmp[5] > tmp[6]) + (tmp[5] > tmp[7])) * 2;
+	idx += (tmp[6] > tmp[7]);
+	
 	return idx;
     }
 
     inline ui index()
     {
 	ui idx = 0;
+
 	idx += tmp[0] >> 3;
-	idx += (ui)3 * (tmp[1] >> 3);
-	idx += (ui)9 * (tmp[2] >> 3);
-	idx += (ui)27 * (tmp[3] >> 3);
-	idx += (ui)81 * (tmp[4] >> 3);
-	idx += (ui)243 * (tmp[5] >> 3);
-	idx += (ui)729 * (tmp[6] >> 3);
+	idx += (tmp[1] >> 3) * 3;
+	idx += (tmp[2] >> 3) * 9;
+	idx += (tmp[3] >> 3) * 27;
+	idx += (tmp[4] >> 3) * 81;
+	idx += (tmp[5] >> 3) * 243;
+	idx += (tmp[6] >> 3) * 729;
+
 	return idx;
     }
 };
