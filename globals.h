@@ -164,56 +164,45 @@ struct database
 
     inline uc load(ull k)
     {
-	trans(k);
-	ui idx = index();
-	return (T[cantor()][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
+	ui idx = index(k);
+	return (T[cantor(k)][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
     }
 
 private:
-    uc T[N][M >> 1], tmp[8]; //40960, 2304
-    
-    inline void trans(ull k)
+    uc T[N][M >> 1];
+        
+    inline ui cantor(ull k)
     {
-	tmp[0] = k & MASK5;
-	tmp[1] = (k >>= 5) & MASK5;
-	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5;
-	tmp[4] = (k >>= 5) & MASK5;
-	tmp[5] = (k >>= 5) & MASK5;
-	tmp[6] = (k >>= 5) & MASK5;
-	tmp[7] = (k >>= 5) & MASK5;
-    }
-    
-    inline ui cantor()
-    {
-	tmp[0] &= 7; tmp[1] &= 7; tmp[2] &= 7; tmp[3] &= 7;
-	tmp[4] &= 7; tmp[5] &= 7; tmp[6] &= 7; tmp[7] &= 7;
-
 	ui idx = 0;
+	uc t0, t1, t2, t3;
 	
-	idx += tmp[0] * 5040;
-	idx += (tmp[1] - (tmp[0] < tmp[1])) * 720;
-	idx += (tmp[2] - (tmp[0] < tmp[2]) - (tmp[1] < tmp[2])) * 120;
-	idx += (tmp[3] - 
-		(tmp[0] < tmp[3]) - (tmp[1] < tmp[3]) - (tmp[2] < tmp[3])) * 24;
-	idx += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6]) + (tmp[4] > tmp[7])) * 6;
-	idx += ((tmp[5] > tmp[6]) + (tmp[5] > tmp[7])) * 2;
-	idx += (tmp[6] > tmp[7]);
+	t0 = k & 7; t1 = (k >>= 5) & 7; t2 = (k >>= 5) & 7; t3 = (k >>= 5) & 7;
+		
+	idx += t0 * 5040;
+	idx += (t1 - (t0 < t1)) * 720;
+	idx += (t2 - (t0 < t2) - (t1 < t2)) * 120;
+	idx += (t3 - (t0 < t3) - (t1 < t3) - (t2 < t3)) * 24;
+	
+	t0 = (k >>= 5) & 7; t1 = (k >>= 5) & 7; t2 = (k >>= 5) & 7; t3 = (k >>= 5) & 7;
+	
+	idx += ((t0 > t1) + (t0 > t2) + (t0 > t3)) * 6;
+	idx += ((t1 > t2) + (t1 > t3)) * 2;
+	idx += (t2 > t3);
 	
 	return idx;
     }
 
-    inline ui index()
+    inline ui index(ull k)
     {
 	ui idx = 0;
 
-	idx += tmp[0] >> 3;
-	idx += (tmp[1] >> 3) * 3;
-	idx += (tmp[2] >> 3) * 9;
-	idx += (tmp[3] >> 3) * 27;
-	idx += (tmp[4] >> 3) * 81;
-	idx += (tmp[5] >> 3) * 243;
-	idx += (tmp[6] >> 3) * 729;
+	idx += (k >>= 3) & 3;
+	idx += ((k >>= 5) & 3) * 3;
+	idx += ((k >>= 5) & 3) * 9;
+	idx += ((k >>= 5) & 3) * 27;
+	idx += ((k >>= 5) & 3) * 81;
+	idx += ((k >>= 5) & 3) * 243;
+	idx += ((k >>= 5) & 3) * 729;
 
 	return idx;
     }
