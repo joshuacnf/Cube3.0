@@ -71,8 +71,58 @@ void __attribute__ ((constructor)) initTurnMap()
     fclose(in);
 }
 
-/////////////////////////////////DATA STRUCTURES///////////////////////////////
 
+////////////////////////////////////FUNCTIONS/////////////////////////////////
+
+template <typename T>
+inline void swap_(T &x, T &y) { T z = y; y = x; x = z; }
+
+template <typename T>
+inline T min_(const T &x, const T &y) { return x < y? x: y; }
+
+template <typename T>
+inline T max_(const T &x, const T &y) { return x > y? x: y; }
+
+template <typename T>
+inline T abs_(const T &x) { return x < 0? -x: x; }
+
+template <typename T>
+inline void sort7(T *A)
+{
+    for (int i = 1; i < 7; i++)
+	for (int j = i; j > 0; j--)
+	    if (A[j] < A[j - 1])
+		swap_(A[j], A[j - 1]);
+	    else break;
+}
+
+inline int fac_(int n)
+{
+    int ans = 1;
+    for (int i = 1; i <= n; i++)
+	ans *= i;
+    return ans;
+}
+
+inline int combination(int n, int k)
+{
+    if (n < k) return 0;
+    return fac_(n) / (fac_(n - k) * fac_(k));
+}
+
+inline int minint_(const int &x, const int &y)
+{
+    long long m = (x - y) >> 31;
+    return (y & ~m) | (x & m);
+}
+
+inline int maxint_(const int &x, const int &y)
+{
+    long long m = (x - y) >> 31;
+    return (y & m) | (x & ~m);
+}
+
+/////////////////////////////////DATA STRUCTURES///////////////////////////////
 
 template <typename type>
 struct hash_table
@@ -146,14 +196,14 @@ private:
 #define N 40320 //8!: 40320
 #define M 2187 //3^7: 2187
 
-struct database
+struct databaseC
 {
-    database()
+    databaseC()
     { 
-	FILE *in = fopen("database.in", "r");
+	FILE *in = fopen("databaseC.in", "r");
 	if (!in)
 	{
-	    fprintf(stderr, "Failed to initialize pattern database.\n");
+	    fprintf(stderr, "Failed to initialize pattern database C.\n");
 	    exit(0);
 	}
 	for (int i = 0; i < N; i++)
@@ -196,7 +246,7 @@ private:
     {
 	ui idx = 0;
 
-	idx += (k >>= 3) & 3;
+	idx += ((k >>= 3) & 3);
 	idx += ((k >>= 5) & 3) * 3;
 	idx += ((k >>= 5) & 3) * 9;
 	idx += ((k >>= 5) & 3) * 27;
@@ -211,30 +261,91 @@ private:
 #undef N
 #undef M
 
-////////////////////////////////////FUNCTIONS/////////////////////////////////
 
-template <typename T>
-inline void swap_(T &x, T &y) { T z = y; y = x; x = z; }
+#define N 3991680 //(12!)/(5!)
+#define M 128 //2^7
 
-template <typename T>
-inline T min_(const T &x, const T &y) { return x < y? x: y; }
-
-template <typename T>
-inline T max_(const T &x, const T &y) { return x > y? x: y; }
-
-template <typename T>
-inline T abs_(const T &x) { return x < 0? -x: x; }
-
-inline int minint_(const int &x, const int &y)
+struct databaseS
 {
-    long long m = (x - y) >> 31;
-    return (y & ~m) | (x & m);
-}
+    databaseS()
+    {
+	FILE *in = fopen("databaseS.in", "r");
+	if (!in)
+	{
+	    fprintf(stderr, "Failed to initialize pattern database S.\n");
+	    exit(0);
+	}
+	for (int i = 0; i < N; i++)
+	    for (int j = 0; j < (M >> 1); j++)
+		fscanf(in, "%hhu", &T[i][j]);
+	fclose(in);
+	
+	memset(sum, 0, sizeof(sum));	
 
-inline int maxint_(const int &x, const int &y)
-{
-    long long m = (x - y) >> 31;
-    return (y & m) | (x & ~m);
-}
+	for (int i = 0; i < 7; i++)
+	    for (int j = 1; j <= 11; j++)
+		sum[i][j] = sum[i][j - 1] + combination(12 - j, 6 - i);
+    }
+    
+    inline uc load(ull k)
+    {
+	ui idx1, idx2;
+	index(idx1, idx2, k);
+	return (T[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+    }
+    
+private:
+    uc T[N][M >> 1];
+    uc tmp[7]; ui sum[7][12]; //sum: some sort of prefix sums of combinations
+    
+    inline void index(ui &idx1, ui &idx2, ull k)
+    {
+	idx1 = idx2 = 0;
+
+	tmp[0] = k & MASK5;
+	tmp[1] = (k >>= 5) & MASK5; 
+	tmp[2] = (k >>= 5) & MASK5;
+	tmp[3] = (k >>= 5) & MASK5; 
+	tmp[4] = (k >>= 5) & MASK5; 
+	tmp[5] = (k >>= 5) & MASK5;
+	tmp[6] = (k >>= 5) & MASK5;
+
+	if (tmp[0] > 11) idx2 |= 1, tmp[0] -= 12;
+	if (tmp[1] > 11) idx2 |= 2, tmp[1] -= 12;
+	if (tmp[2] > 11) idx2 |= 4, tmp[2] -= 12;
+	if (tmp[3] > 11) idx2 |= 8, tmp[3] -= 12;
+	if (tmp[4] > 11) idx2 |= 16, tmp[4] -= 12;
+	if (tmp[5] > 11) idx2 |= 32, tmp[5] -= 12;
+	if (tmp[6] > 11) idx2 |= 64, tmp[6] -= 12;
+	
+	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
+		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5]) + (tmp[0] > tmp[6])) * 720;
+	idx1 += ((tmp[1] > tmp[2]) + (tmp[1] > tmp[3]) + (tmp[1] > tmp[4]) +
+		 (tmp[1] > tmp[5]) + (tmp[1] > tmp[6])) * 120;
+	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5]) +
+		 (tmp[2] > tmp[6])) * 24;
+	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5]) + (tmp[3] > tmp[6])) * 6;
+	idx1 += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6])) * 2;
+	idx1 += tmp[5] > tmp[6];
+
+	sort7(tmp);
+
+	ui t = 0;
+
+	t += sum[0][tmp[0]];
+	t += sum[1][tmp[1]] - sum[1][tmp[0] + 1];
+	t += sum[2][tmp[2]] - sum[2][tmp[1] + 1];	
+	t += sum[3][tmp[3]] - sum[3][tmp[2] + 1];
+	t += sum[4][tmp[4]] - sum[4][tmp[3] + 1];
+	t += sum[5][tmp[5]] - sum[5][tmp[4] + 1];
+	t += sum[6][tmp[6]] - sum[6][tmp[5] + 1];
+
+	idx1 += t * 5040;
+    }
+};
+
+#undef N
+#undef M
+
 
 #endif /* globals_h */
