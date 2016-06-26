@@ -95,11 +95,11 @@ struct databaseS_
     databaseS_(): cnt(0)
     {
 	memset(T, 0, sizeof(T));
-	memset(sum, 0, sizeof(sum));	
+	memset(com, 0, sizeof(com));	
 
 	for (int i = 0; i < 7; i++)
-	    for (int j = 1; j <= 11; j++)
-		sum[i][j] = sum[i][j - 1] + combination(12 - j, 6 - i);
+	    for (int j = 0; j < 11; j++)
+		com[i][j] = combination(11 - j, 6 - i);
     }
 
     inline ui size()
@@ -134,27 +134,27 @@ struct databaseS_
     
 private:
     uc T[N][M >> 1]; ui cnt;
-    uc tmp[7]; ui sum[7][12]; //sum: some sort of prefix sums of combinations
+    uc tmp[7]; ui com[7][12]; //com: some numbers of combinations
+    bool s[12];
     
     inline void index(ui &idx1, ui &idx2, ull k)
     {
+	memset(s, 0, 12);
 	idx1 = idx2 = 0;
-
-	tmp[0] = k & MASK5; 
+	
+	tmp[0] = k & MASK5;
 	tmp[1] = (k >>= 5) & MASK5; 
 	tmp[2] = (k >>= 5) & MASK5;
 	tmp[3] = (k >>= 5) & MASK5; 
-	tmp[4] = (k >>= 5) & MASK5; 
+	tmp[4] = (k >>= 5) & MASK5;
 	tmp[5] = (k >>= 5) & MASK5;
 	tmp[6] = (k >>= 5) & MASK5;
-
-	if (tmp[0] > 11) idx2 |= 1, tmp[0] -= 12;
-	if (tmp[1] > 11) idx2 |= 2, tmp[1] -= 12;
-	if (tmp[2] > 11) idx2 |= 4, tmp[2] -= 12;
-	if (tmp[3] > 11) idx2 |= 8, tmp[3] -= 12;
-	if (tmp[4] > 11) idx2 |= 16, tmp[4] -= 12;
-	if (tmp[5] > 11) idx2 |= 32, tmp[5] -= 12;
-	if (tmp[6] > 11) idx2 |= 64, tmp[6] -= 12;
+	
+	for (int i = 0; i < 7; i++)
+	{
+	    idx2 += ((tmp[i] / 12) & 1) << i;
+	    tmp[i] %= 12, s[tmp[i]] = true;
+	}
 	
 	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
 		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5]) + (tmp[0] > tmp[6])) * 720;
@@ -166,18 +166,11 @@ private:
 	idx1 += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6])) * 2;
 	idx1 += tmp[5] > tmp[6];
 
-	sort7(tmp);
-
-	ui t = 0;
-
-	t += sum[0][tmp[0]];
-	t += sum[1][tmp[1]] - sum[1][tmp[0] + 1];
-	t += sum[2][tmp[2]] - sum[2][tmp[1] + 1];	
-	t += sum[3][tmp[3]] - sum[3][tmp[2] + 1];
-	t += sum[4][tmp[4]] - sum[4][tmp[3] + 1];
-	t += sum[5][tmp[5]] - sum[5][tmp[4] + 1];
-	t += sum[6][tmp[6]] - sum[6][tmp[5] + 1];
-
+	ui t = 0; uc i, j;
+	for (i = j = 0; i < 7; j++)
+	    if (!s[j]) t += com[i][j];
+	    else i++;
+	
 	idx1 += t * 5040;
     }
 };

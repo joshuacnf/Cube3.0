@@ -280,11 +280,11 @@ struct databaseS
 		fscanf(in, "%hhu", &T[i][j]);
 	fclose(in);
 	
-	memset(sum, 0, sizeof(sum));	
+	memset(com, 0, sizeof(com));	
 
 	for (int i = 0; i < 7; i++)
 	    for (int j = 0; j < 11; j++)
-		sum[i][j] = combination(11 - j, 6 - i);
+		com[i][j] = combination(11 - j, 6 - i);
     }
     
     inline uc load(ull k)
@@ -296,7 +296,7 @@ struct databaseS
     
 private:
     uc T[N][M >> 1];
-    uc tmp[7]; ui sum[7][12]; //sum: some sort of prefix sums of combinations
+    uc tmp[7]; ui com[7][12]; //com: some numbers of combinations
     bool s[12];
     
     inline void index(ui &idx1, ui &idx2, ull k)
@@ -330,7 +330,7 @@ private:
 
 	ui t = 0; uc i, j;
 	for (i = j = 0; i < 7; j++)
-	    if (!s[j]) t += sum[i][j];
+	    if (!s[j]) t += com[i][j];
 	    else i++;
 	
 	idx1 += t * 5040;
