@@ -24,7 +24,7 @@ struct databaseC_
     {
 	cnt++;
 	ui idx = index(k);
-	T[cantor(k)][idx >> 1] |= v << ((idx & 1) << 2);
+        T[cantor(k)][idx >> 1] |= v << ((idx & 1) << 2);
     }
 
     inline uc load(ull k)
@@ -35,7 +35,7 @@ struct databaseC_
     
     void write()
     {
-	T[0][0] &= ~MASK4;
+        T[0][0] &= ~MASK4;
 	FILE *out = fopen("databaseC.in", "w");
 	for (int i = 0; i < N; i++)
 	    for (int j = 0; j < (M >> 1); j++)

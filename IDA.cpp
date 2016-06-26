@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "cube.h"
 
-#define MAXTURN 16
+#define MAXTURN 15
 
 cube A;
 databaseS DBS; databaseC DBC;
@@ -27,7 +27,7 @@ bool dfs(uc u)
     cnt++;
     if (A.solved()) return true;
     
-    if (max_(DBS.load(A.S), DBC.load(A.C)) + d > cutoff)
+    if (max_(DBC.load(A.C), DBS.load(A.S)) + d > cutoff)
 	return false;
 
     for (uc v = 0; v < 18; v++)
@@ -59,7 +59,7 @@ void IDA()
     double t = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
     
     printf("Time: %lf\n", t);
-    printf("Nodes generated: %d (%d nodes/second)\n", cnt, (int)(cnt / t));
+    printf("Nodes generated: %u (%u nodes/second)\n", cnt, (int)(cnt / t));
 }
 
 void check()
