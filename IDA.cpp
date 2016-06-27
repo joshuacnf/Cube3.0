@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "cube.h"
 
-#define MAXTURN 15
+#define MAXTURN 14
 
 cube A;
 databaseS DBS; databaseC DBC;
@@ -27,8 +27,8 @@ bool dfs(uc u)
     cnt++;
     if (A.solved()) return true;
     
-    if (max_(DBC.load(A.C), DBS.load(A.S)) + d > cutoff)
-	return false;
+    if (DBC.load(A.C) + d > cutoff) return false;
+    if (DBS.load(A.S) + d > cutoff) return false;
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])

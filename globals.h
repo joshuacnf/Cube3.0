@@ -262,8 +262,8 @@ private:
 #undef M
 
 
-#define N 3991680 //(12!)/(5!)
-#define M 128 //2^7
+#define N 665280 //(12!)/(6!)
+#define M 64 //2^6
 
 struct databaseS
 {
@@ -280,11 +280,11 @@ struct databaseS
 		fscanf(in, "%hhu", &T[i][j]);
 	fclose(in);
 	
-	memset(com, 0, sizeof(com));	
+	memset(com, 0, sizeof(com));
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 6; i++)
 	    for (int j = 0; j < 11; j++)
-		com[i][j] = combination(11 - j, 6 - i);
+		com[i][j] = combination(11 - j, 5 - i);
     }
     
     inline uc load(ull k)
@@ -296,44 +296,44 @@ struct databaseS
     
 private:
     uc T[N][M >> 1];
-    uc tmp[7]; ui com[7][12]; //com: some numbers of combinations
-    bool s[12];
+    ui com[6][12]; //com: some numbers of combinations
+    uc tmp[6]; bool s[12];
     
     inline void index(ui &idx1, ui &idx2, ull k)
     {
 	memset(s, 0, 12);
 	idx1 = idx2 = 0;
-
+	
 	tmp[0] = k & MASK5;
-	tmp[1] = (k >>= 5) & MASK5; 
+	tmp[1] = (k >>= 5) & MASK5;
 	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5; 
+	tmp[3] = (k >>= 5) & MASK5;
 	tmp[4] = (k >>= 5) & MASK5;
 	tmp[5] = (k >>= 5) & MASK5;
-	tmp[6] = (k >>= 5) & MASK5;
 	
-	for (int i = 0; i < 7; i++)
+       	for (int i = 0; i < 6; i++)
 	{
 	    idx2 += ((tmp[i] / 12) & 1) << i;
 	    tmp[i] %= 12, s[tmp[i]] = true;
 	}
 	
 	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
-		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5]) + (tmp[0] > tmp[6])) * 720;
+		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5])) * 120;
 	idx1 += ((tmp[1] > tmp[2]) + (tmp[1] > tmp[3]) + (tmp[1] > tmp[4]) +
-		 (tmp[1] > tmp[5]) + (tmp[1] > tmp[6])) * 120;
-	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5]) +
-		 (tmp[2] > tmp[6])) * 24;
-	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5]) + (tmp[3] > tmp[6])) * 6;
-	idx1 += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6])) * 2;
-	idx1 += tmp[5] > tmp[6];
-
-	ui t = 0; uc i, j;
-	for (i = j = 0; i < 7; j++)
+		 (tmp[1] > tmp[5])) * 24;
+	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5])) * 6;
+	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5])) * 2;
+	idx1 += tmp[4] > tmp[5];
+	
+	ui t = 0; uc i = 0, j = 0;
+	while (i < 6)
+	{
 	    if (!s[j]) t += com[i][j];
 	    else i++;
-	
-	idx1 += t * 5040;
+	    j++;
+	}
+		
+	idx1 += t * 720; //6!
     }
 };
 

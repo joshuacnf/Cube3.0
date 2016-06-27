@@ -87,8 +87,8 @@ private:
 #undef M
 
 
-#define N 3991680 //(12!)/(5!)
-#define M 128 //2^7
+#define N 665280 //(12!)/(6!)
+#define M 64 //2^6
 
 struct databaseS_
 {
@@ -97,9 +97,9 @@ struct databaseS_
 	memset(T, 0, sizeof(T));
 	memset(com, 0, sizeof(com));	
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 6; i++)
 	    for (int j = 0; j < 11; j++)
-		com[i][j] = combination(11 - j, 6 - i);
+		com[i][j] = combination(11 - j, 5 - i);
     }
 
     inline ui size()
@@ -134,7 +134,7 @@ struct databaseS_
     
 private:
     uc T[N][M >> 1]; ui cnt;
-    uc tmp[7]; ui com[7][12]; //com: some numbers of combinations
+    uc tmp[6]; ui com[6][12]; //com: some numbers of combinations
     bool s[12];
     
     inline void index(ui &idx1, ui &idx2, ull k)
@@ -145,33 +145,30 @@ private:
 	tmp[0] = k & MASK5;
 	tmp[1] = (k >>= 5) & MASK5; 
 	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5; 
+	tmp[3] = (k >>= 5) & MASK5;
 	tmp[4] = (k >>= 5) & MASK5;
 	tmp[5] = (k >>= 5) & MASK5;
-	tmp[6] = (k >>= 5) & MASK5;
 	
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 6; i++)
 	{
 	    idx2 += ((tmp[i] / 12) & 1) << i;
 	    tmp[i] %= 12, s[tmp[i]] = true;
 	}
 	
 	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
-		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5]) + (tmp[0] > tmp[6])) * 720;
+		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5])) * 120;
 	idx1 += ((tmp[1] > tmp[2]) + (tmp[1] > tmp[3]) + (tmp[1] > tmp[4]) +
-		 (tmp[1] > tmp[5]) + (tmp[1] > tmp[6])) * 120;
-	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5]) +
-		 (tmp[2] > tmp[6])) * 24;
-	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5]) + (tmp[3] > tmp[6])) * 6;
-	idx1 += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6])) * 2;
-	idx1 += tmp[5] > tmp[6];
-
+		 (tmp[1] > tmp[5])) * 24;
+	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5])) * 6;
+	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5])) * 2;
+	idx1 += tmp[4] > tmp[5];
+	
 	ui t = 0; uc i, j;
-	for (i = j = 0; i < 7; j++)
+	for (i = j = 0; i < 6; j++)
 	    if (!s[j]) t += com[i][j];
 	    else i++;
 	
-	idx1 += t * 5040;
+	idx1 += t * 720; //6!
     }
 };
 
@@ -184,6 +181,7 @@ queue<ull> Q;
 queue<uc> uQ, dQ;
 
 clock_t st = 0;
+uc maxd = 0;
 
 inline void turnC(ull &C, uc u)
 {
@@ -214,13 +212,13 @@ inline void updateStatusS()
     if ((clock() - st) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     st = clock();
-    printf("Side Database: %.2lf%%\n", DBS_.size() / (double)5109350.4);
+    printf("Side Database: %.2lf%%\n", DBS_.size() / (double)425779.2);
 }
 
 void bfsC()
 {
     printf("Genrating Pattern Database for corner cubies...\n");
-    st = 0;
+    st = 0; maxd = 0;
     
     cube A;
     Q.push(A.C); uQ.push(18); dQ.push(0);
@@ -240,6 +238,7 @@ void bfsC()
 		if (!DBC_.load(C))
 		{
 		    DBC_.store(C, d + 1);
+		    maxd = max_(maxd, (uc)(d + 1));
 		    Q.push(C); uQ.push(v); dQ.push(d + 1);
 		}
 		C = C0;
@@ -249,16 +248,17 @@ void bfsC()
     }
 
     printf("Total Positions of 8 corner cubies: %d\n", DBC_.size());
+    printf("Max Heuristic Value: %d\n", maxd);
 }
 
 void bfsS()
 {
     printf("Genrating Pattern Database for side cubies...\n");
-    st = 0;
+    st = 0; maxd = 0;
     
     cube A;
     Q.push(A.S); uQ.push(18); dQ.push(0);
-    DBS_.store(A.C, 0);
+    DBS_.store(A.S, 0);
 
     ull S; uc u, d;
     while(!Q.empty())
@@ -269,11 +269,12 @@ void bfsS()
 	for (uc v = 0; v < 18; v++)
 	    if(G[u][v])
 	    {
-		ull S0 = S; 
+		ull S0 = S;
 		turnS(S, v);
 		if (!DBS_.load(S))
 		{
 		    DBS_.store(S, d + 1);
+		    maxd = max_(maxd, (uc)(d + 1));
 		    Q.push(S); uQ.push(v); dQ.push(d + 1);
 		}		 		
 		S = S0;
@@ -282,7 +283,8 @@ void bfsS()
 	updateStatusS();
     }
 
-    printf("Total Positions of 7 side cubies: %d\n", DBS_.size());
+    printf("Total Positions of 6 side cubies: %d\n", DBS_.size());
+    printf("Max Heuristic Value: %d\n", maxd);
 }
 
 int main(int argc, char *argv[])
