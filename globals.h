@@ -275,9 +275,15 @@ struct databaseS
 	    fprintf(stderr, "Failed to initialize pattern database S.\n");
 	    exit(0);
 	}
+	
 	for (int i = 0; i < N; i++)
 	    for (int j = 0; j < (M >> 1); j++)
-		fscanf(in, "%hhu", &T[i][j]);
+		fscanf(in, "%hhu", &T1[i][j]);
+	
+	for (int i = 0; i < N; i++)
+	    for (int j = 0; j < (M >> 1); j++)
+		fscanf(in, "%hhu", &T2[i][j]);
+	
 	fclose(in);
 	
 	memset(com, 0, sizeof(com));
@@ -287,15 +293,22 @@ struct databaseS
 		com[i][j] = combination(11 - j, 5 - i);
     }
     
-    inline uc load(ull k)
+    inline uc load1(ull k)
     {
 	ui idx1, idx2;
-	index(idx1, idx2, k);
-	return (T[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	trans(k); index(idx1, idx2, k);
+	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+    }
+
+    inline uc load2(ull k)
+    {
+	ui idx1, idx2;
+	trans(k >> 30); index(idx1, idx2, k);
+	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
-    uc T[N][M >> 1];
+    uc T1[N][M >> 1], T2[N][M >> 1];
     ui com[6][12]; //com: some numbers of combinations
     uc tmp[6]; bool s[12];
     
@@ -303,14 +316,7 @@ private:
     {
 	memset(s, 0, 12);
 	idx1 = idx2 = 0;
-	
-	tmp[0] = k & MASK5;
-	tmp[1] = (k >>= 5) & MASK5;
-	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5;
-	tmp[4] = (k >>= 5) & MASK5;
-	tmp[5] = (k >>= 5) & MASK5;
-	
+		
        	for (int i = 0; i < 6; i++)
 	{
 	    idx2 += ((tmp[i] / 12) & 1) << i;
@@ -334,6 +340,16 @@ private:
 	}
 		
 	idx1 += t * 720; //6!
+    }
+
+    inline void trans(ull k)
+    {
+	tmp[0] = k & MASK5;
+	tmp[1] = (k >>= 5) & MASK5; 
+	tmp[2] = (k >>= 5) & MASK5;
+	tmp[3] = (k >>= 5) & MASK5;
+	tmp[4] = (k >>= 5) & MASK5;
+	tmp[5] = (k >>= 5) & MASK5;
     }
 };
 

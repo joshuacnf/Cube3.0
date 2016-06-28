@@ -94,7 +94,8 @@ struct databaseS_
 {
     databaseS_(): cnt(0)
     {
-	memset(T, 0, sizeof(T));
+	memset(T1, 0, sizeof(T1));
+	memset(T2, 0, sizeof(T2));
 	memset(com, 0, sizeof(com));	
 
 	for (int i = 0; i < 6; i++)
@@ -107,47 +108,61 @@ struct databaseS_
 	return cnt;
     }
 
-    inline void store(ull k, uc v)
+    inline void store1(ull k, uc v)
     {
 	cnt++;
-	ui idx1, idx2;
-	index(idx1, idx2, k);
-	T[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
+	ui idx1, idx2;	
+	trans(k); index(idx1, idx2);
+	T1[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
+    }
+    
+    inline void store2(ull k, uc v)
+    {
+	cnt++;
+	ui idx1, idx2;	
+	trans(k >> 30); index(idx1, idx2);
+	T2[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
     }
 
-    inline uc load(ull k)
+    inline bool load1(ull k)
     {
 	ui idx1, idx2;
-	index(idx1, idx2, k);
-	return (T[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	trans(k); index(idx1, idx2);
+	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+    }
+    
+    inline bool load2(ull k)
+    {
+	ui idx1, idx2;
+	trans(k >> 30); index(idx1, idx2);
+	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
     void write()
     {
-	T[0][0] &= ~MASK4;
+	T1[0][0] &= ~MASK4; T2[0][0] &= ~MASK4;
 	FILE *out = fopen("databaseS.in", "w");
+	
 	for (int i = 0; i < N; i++)
 	    for (int j = 0; j < (M >> 1); j++)
-		fprintf(out, "%hhu ", T[i][j]);
+		fprintf(out, "%hhu ", T1[i][j]);
+
+	for (int i = 0; i < N; i++)
+	    for (int j = 0; j < (M >> 1); j++)
+		fprintf(out, "%hhu ", T2[i][j]);
+	
 	fclose(out);
     }
     
 private:
-    uc T[N][M >> 1]; ui cnt;
+    uc T1[N][M >> 1], T2[N][M >> 1]; ui cnt;
     uc tmp[6]; ui com[6][12]; //com: some numbers of combinations
     bool s[12];
     
-    inline void index(ui &idx1, ui &idx2, ull k)
+    inline void index(ui &idx1, ui &idx2)
     {
 	memset(s, 0, 12);
 	idx1 = idx2 = 0;
-	
-	tmp[0] = k & MASK5;
-	tmp[1] = (k >>= 5) & MASK5; 
-	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5;
-	tmp[4] = (k >>= 5) & MASK5;
-	tmp[5] = (k >>= 5) & MASK5;
 	
 	for (int i = 0; i < 6; i++)
 	{
@@ -169,6 +184,16 @@ private:
 	    else i++;
 	
 	idx1 += t * 720; //6!
+    }
+
+    inline void trans(ull k)
+    {
+	tmp[0] = k & MASK5;
+	tmp[1] = (k >>= 5) & MASK5; 
+	tmp[2] = (k >>= 5) & MASK5;
+	tmp[3] = (k >>= 5) & MASK5;
+	tmp[4] = (k >>= 5) & MASK5;
+	tmp[5] = (k >>= 5) & MASK5;
     }
 };
 
@@ -212,7 +237,7 @@ inline void updateStatusS()
     if ((clock() - st) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     st = clock();
-    printf("Side Database: %.2lf%%\n", DBS_.size() / (double)425779.2);
+    printf("Side Database: %.2lf%%\n", DBS_.size() / (double)851558.4);
 }
 
 void bfsC()
@@ -254,13 +279,12 @@ void bfsC()
 void bfsS()
 {
     printf("Genrating Pattern Database for side cubies...\n");
-    st = 0; maxd = 0;
+    cube A; st = 0; maxd = 0;
+    ull S, S0; uc u, d;
     
-    cube A;
     Q.push(A.S); uQ.push(18); dQ.push(0);
-    DBS_.store(A.S, 0);
+    DBS_.store1(A.S, 0);
 
-    ull S; uc u, d;
     while(!Q.empty())
     {
 	S = Q.front(), u = uQ.front(), d = dQ.front();
@@ -269,21 +293,44 @@ void bfsS()
 	for (uc v = 0; v < 18; v++)
 	    if(G[u][v])
 	    {
-		ull S0 = S;
-		turnS(S, v);
-		if (!DBS_.load(S))
+		S0 = S; turnS(S, v);
+		if (!DBS_.load1(S))
 		{
-		    DBS_.store(S, d + 1);
+		    DBS_.store1(S, d + 1);
 		    maxd = max_(maxd, (uc)(d + 1));
 		    Q.push(S); uQ.push(v); dQ.push(d + 1);
-		}		 		
+		}
+		S = S0;
+	    }
+	
+	updateStatusS();
+    }
+    
+    Q.push(A.S); uQ.push(18); dQ.push(0);
+    DBS_.store2(A.S, 0);
+
+    while(!Q.empty())
+    {
+	S = Q.front(), u = uQ.front(), d = dQ.front();
+	Q.pop(); uQ.pop(); dQ.pop();
+
+	for (uc v = 0; v < 18; v++)
+	    if(G[u][v])
+	    {
+		S0 = S; turnS(S, v);
+		if (!DBS_.load2(S))
+		{
+		    DBS_.store2(S, d + 1);
+		    maxd = max_(maxd, (uc)(d + 1));
+		    Q.push(S); uQ.push(v); dQ.push(d + 1);
+		}
 		S = S0;
 	    }
 	
 	updateStatusS();
     }
 
-    printf("Total Positions of 6 side cubies: %d\n", DBS_.size());
+    printf("Total Positions of 2 sets of 6 side cubies: %d\n", DBS_.size());
     printf("Max Heuristic Value: %d\n", maxd);
 }
 
