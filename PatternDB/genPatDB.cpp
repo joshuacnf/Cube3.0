@@ -104,23 +104,6 @@ struct databaseS_
 		com[i][j] = combination(11 - j, 5 - i);
     }
 
-    inline void initSetConfig(char *argv[])
-    {
-	for (int i = 0; i < 12; i++)
-	    cubie_set[i] = atoi(argv[i]);
-	
-	printf("Side Cubie Set 1: ");
-	for (int i = 0; i < 6; i++) printf("%d ", cubie_set[i]);
-	printf("\n");
-	
-	printf("Side Cubie Set 2: ");
-	for (int i = 6; i < 12; i++) printf("%d ", cubie_set[i]);
-	printf("\n");
-
-	for (int i = 0; i < 12; i++)
-	    cubie_set[i] *= 5;
-    }
-
     inline ui size() const
     {
 	return cnt;
@@ -130,7 +113,7 @@ struct databaseS_
     {
 	cnt++;
 	ui idx1, idx2;
-	trans1(k); index(idx1, idx2);
+	trans(k); index(idx1, idx2);
 	T1[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
     }
     
@@ -138,21 +121,21 @@ struct databaseS_
     {
 	cnt++;
 	ui idx1, idx2;	
-	trans2(k); index(idx1, idx2);
+	trans(k >> 30); index(idx1, idx2);
 	T2[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
     }
 
     inline bool load1(ull k)
     {
 	ui idx1, idx2;
-	trans1(k); index(idx1, idx2);
+	trans(k); index(idx1, idx2);
 	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
     inline bool load2(ull k)
     {
 	ui idx1, idx2;
-	trans2(k); index(idx1, idx2);
+	trans(k >> 30); index(idx1, idx2);
 	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
@@ -174,28 +157,16 @@ struct databaseS_
     
 private:
     uc T1[N][M >> 1], T2[N][M >> 1]; ui cnt;
-    ui cubie_set[12];
-    uc tmp[6]; bool s[12]; ui com[6][12]; //com: some numbers of combinations
+    uc tmp[6]; bool s[12]; ui com[6][12]; //com: some numbers of combinations    
     
-    
-    inline void trans1(ull k)
+    inline void trans(ull k)
     {
-	tmp[0] = (k >> cubie_set[0]) & MASK5;
-	tmp[1] = (k >> cubie_set[1]) & MASK5;
-	tmp[2] = (k >> cubie_set[2]) & MASK5;
-	tmp[3] = (k >> cubie_set[3]) & MASK5;
-	tmp[4] = (k >> cubie_set[4]) & MASK5;
-	tmp[5] = (k >> cubie_set[5]) & MASK5;
-    }
-
-    inline void trans2(ull k)
-    {
-	tmp[0] = (k >> cubie_set[6]) & MASK5;
-	tmp[1] = (k >> cubie_set[7]) & MASK5;
-	tmp[2] = (k >> cubie_set[8]) & MASK5;
-	tmp[3] = (k >> cubie_set[9]) & MASK5;
-	tmp[4] = (k >> cubie_set[10]) & MASK5;
-	tmp[5] = (k >> cubie_set[11]) & MASK5;
+	tmp[0] = k & MASK5;
+	tmp[1] = (k >> 5) & MASK5;
+	tmp[2] = (k >> 10) & MASK5;
+	tmp[3] = (k >> 15) & MASK5;
+	tmp[4] = (k >> 20) & MASK5;
+	tmp[5] = (k >> 25) & MASK5;
     }
     
     inline void index(ui &idx1, ui &idx2)
@@ -369,9 +340,7 @@ int main(int argc, char *argv[])
     switch(*argv[1])
     {
 	case 'C': bfsC(); DBC_.write(); break;
-	case 'S':
-	    DBS_.initSetConfig(argv + 2);
-	    bfsS(); DBS_.write(); break;
+	case 'S': bfsS(); DBS_.write(); break;
 	default: break;
     }
     printf("\n");
