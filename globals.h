@@ -61,6 +61,12 @@ us cM[18][760] = {0};
 void __attribute__ ((constructor)) initTurnMap()
 {
     FILE *in = fopen("map.in", "r");
+    if (!in)
+    { 
+	fprintf(stderr, "Turn Map uninitialized.\n");
+	return;
+    }
+
     for (int i = 0; i < 18; i++)
         for (int j = 0; j < 760; j++)
             fscanf(in, "%hu", &sM[i][j]);
@@ -296,23 +302,23 @@ struct databaseS
     inline uc load1(ull k)
     {
 	ui idx1, idx2;
-	trans(k); index(idx1, idx2, k);
+	trans(k); index(idx1, idx2);
 	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
 
     inline uc load2(ull k)
     {
 	ui idx1, idx2;
-	trans(k >> 30); index(idx1, idx2, k);
+	trans(k >> 30); index(idx1, idx2);
 	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
     uc T1[N][M >> 1], T2[N][M >> 1];
     ui com[6][12]; //com: some numbers of combinations
-    uc tmp[6]; bool s[12];
+    bool s[12]; uc tmp[6];
     
-    inline void index(ui &idx1, ui &idx2, ull k)
+    inline void index(ui &idx1, ui &idx2)
     {
 	memset(s, 0, 12);
 	idx1 = idx2 = 0;
@@ -331,14 +337,14 @@ private:
 	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5])) * 2;
 	idx1 += tmp[4] > tmp[5];
 	
-	ui t = 0; uc i = 0, j = 0;
+	ui t = 0, i = 0, j = 0;
 	while (i < 6)
 	{
 	    if (!s[j]) t += com[i][j];
 	    else i++;
 	    j++;
 	}
-		
+
 	idx1 += t * 720; //6!
     }
 
