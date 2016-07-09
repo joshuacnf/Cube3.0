@@ -35,6 +35,9 @@ testNodeGen: globals.h cube.h testNodeGen.cpp
 testSpeed: globals.h cube.h testSpeed.cpp
 	$(CC) testSpeed.cpp $(CFLAGS) -o testSpeed
 
+testDiskQueue: globals.h testDiskQueue.cpp
+	$(CC) testDiskQueue.cpp $(CFLAGS) -o testDiskQueue
+
 test: map.in database.in testTurn testNodeGen testSpeed
 	./testTurn
 	./testNodeGen
@@ -43,5 +46,5 @@ test: map.in database.in testTurn testNodeGen testSpeed
 clean:
 	-rm TurnMap/genTurnMap map.in
 	-rm PatternDB/evalPatDB PatternDB/genPatDB databaseC.in databaseS.in
-	-rm IDA testTurn testNodeGen testSpeed
+	-rm IDA testTurn testNodeGen testSpeed testDiskQueue
 	-rm *~ \#*\#

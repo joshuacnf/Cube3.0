@@ -202,8 +202,10 @@ private:
 
 databaseC_ DBC_;
 databaseS_ DBS_;
-queue<ull> Q;
-queue<uc> uQ, dQ;
+//queue<ull> Q;
+//queue<uc> uQ, dQ;
+disk_queue Q(8);
+disk_queue uQ(1), dQ(1);
 
 clock_t st = 0;
 uc maxd = 0;

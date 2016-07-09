@@ -21,6 +21,11 @@
 #define MASK15 0x7FFFULL
 #define MASK20 0xFFFFFULL
 
+#define M128 0x8000000ULL
+#define M256 0x10000000ULL
+#define M512 0x20000000ULL
+#define M1024 0x40000000ULL
+
 typedef unsigned int ui;
 typedef unsigned long long ull;
 typedef unsigned short us;
@@ -63,7 +68,7 @@ void __attribute__ ((constructor)) initTurnMap()
     FILE *in = fopen("map.in", "r");
     if (!in)
     { 
-	fprintf(stderr, "Turn Map uninitialized.\n");
+	fprintf(stderr, "Warning: Turn Map uninitialized.\n");
 	return;
     }
 
@@ -129,6 +134,91 @@ inline int maxint_(const int &x, const int &y)
 }
 
 /////////////////////////////////DATA STRUCTURES///////////////////////////////
+
+ui DISK_QUEUE_ID = 0;
+
+struct disk_queue
+{
+    disk_queue(const ui &block_size_):
+    block_size(block_size_), head(0), recyc_cnt(0)
+    {
+	snprintf(file_name, 8, "queue%d", DISK_QUEUE_ID++);
+	handle = fopen(file_name, "wb+");
+	buffer = (uc*)malloc(block_size);
+    }
+
+    ~disk_queue()
+    {
+	fclose(handle);
+	remove(file_name);
+	free(buffer);
+    }
+    
+    inline bool empty()
+    {
+	fseek(handle, head, SEEK_SET);
+	return getc(handle) == EOF;
+    }
+
+    inline ull front()
+    {
+	fseek(handle, head, SEEK_SET);
+	fread(buffer, block_size, 1, handle);
+	return *((ull*)buffer);
+    }
+
+    inline void push(ull x)
+    {
+	fseek(handle, 0, SEEK_END);
+	fwrite(&x, block_size, 1, handle);
+    }
+
+    inline void pop()
+    {
+	recyc_cnt++;
+	head += block_size;
+	
+	if (recyc_cnt > M128)
+	{
+	    clear();
+	    recyc_cnt = 0;
+	}
+    }
+    
+private:
+    FILE *handle; ull head, block_size;
+    uc *buffer; char file_name[8]; ui recyc_cnt;
+    
+#define PAGE_SIZE 134217728LLU //128M
+    inline void clear()
+    {
+	fseek(handle, 0, SEEK_END);
+	ull end = ftell(handle), len = 0;
+	
+	FILE *tmp = fopen("tmp", "wb+");
+	uc *buf = (uc*)malloc(min_(end, PAGE_SIZE));
+	while (head < end)
+	{
+	    len = min_(end - head, PAGE_SIZE);
+	    fseek(handle, head, SEEK_SET);
+	    
+	    fread(buf, len, 1, handle);
+	    fwrite(buf, len, 1, tmp);
+	    
+	    head += len;
+	}
+	free(buf);
+	
+	fclose(handle);
+	handle = tmp; head = 0;
+	
+	remove(file_name);
+	rename("tmp", "queue");
+    }
+#undef PAGE_SIZE
+
+};
+
 
 template <typename type>
 struct hash_table
