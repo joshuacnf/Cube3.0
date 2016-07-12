@@ -4,31 +4,60 @@
 #include "globals.h"
 using namespace std;
 
-#define N 134217728
+#define N M1024
 
-queue<int> Q;
-disk_queue dQ(4);
+queue<us> Q;
+disk_queue dQ(2);
 
 int main()
 {
-    int x;
+    ull x, a, b;
+    
     for (int i = 0; i < N; i++)
     {
-	x = rand() % (N << 2);
-	Q.push(x);
+	x = rand() % (1ULL << 30);
+	Q.push((us)x);
 	dQ.push(x);
     }
 
-    int a, b;
     for (int i = 0; i < N; i++)
     {
 	a = Q.front(); Q.pop();
 	b = dQ.front(); dQ.pop();
 	
-	if (a != b)
+	if ((us)a != (us)b)
 	{
-	    fprintf(stderr, "ERROR: %d %d\n", a, b);
-	    exit(0);
+	    fprintf(stderr, "ERROR: %u %u\n", (us)a, (us)b);
+	    return 0;
+	}
+
+	if (i % 20 == 0)
+	{
+	    x = rand() % (N << 2);
+	    Q.push(x);
+	    dQ.push(x);
+	}
+    }
+
+    while (!Q.empty()) Q.pop();
+    while (!dQ.empty()) dQ.pop();
+
+    for (int i = 0; i < N; i++)
+    {
+	x = rand() % (1ULL << 30);
+	Q.push((us)x);
+	dQ.push(x);
+    }
+
+    for (int i = 0; i < N; i++)
+    {
+	a = Q.front(); Q.pop();
+	b = dQ.front(); dQ.pop();
+	
+	if ((us)a != (us)b)
+	{
+	    fprintf(stderr, "ERROR: %u %u\n", (us)a, (us)b);
+	    return 0;
 	}
 
 	if (i % 20 == 0)

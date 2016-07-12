@@ -175,10 +175,10 @@ struct disk_queue
 
     inline void pop()
     {
-	recyc_cnt++;
 	head += block_size;
+	recyc_cnt += block_size;
 	
-	if (recyc_cnt > M128)
+	if (recyc_cnt > M1024)
 	{
 	    clear();
 	    recyc_cnt = 0;
@@ -213,7 +213,7 @@ private:
 	handle = tmp; head = 0;
 	
 	remove(file_name);
-	rename("tmp", "queue");
+	rename("tmp", file_name);
     }
 #undef PAGE_SIZE
 
@@ -289,8 +289,8 @@ private:
 };
 
 
-#define N 40320 //8!: 40320
-#define M 2187 //3^7: 2187
+#define N 40320ULL //8!: 40320
+#define M 2187ULL //3^7: 2187
 
 struct databaseC
 {
@@ -302,9 +302,7 @@ struct databaseC
 	    fprintf(stderr, "Failed to initialize pattern database C.\n");
 	    exit(0);
 	}
-	for (int i = 0; i < N; i++)
-	    for (int j = 0; j < (M >> 1); j++)
-		fscanf(in, "%hhu", &T[i][j]);
+	fread(T, N * (M >> 1), 1, in);
 	fclose(in);
     }
 
@@ -357,9 +355,9 @@ private:
 #undef N
 #undef M
 
-
-#define N 665280 //(12!)/(6!)
-#define M 64 //2^6
+#define NUM 8 //number of cubies
+#define N 19958400ULL //(12!)/(4!)
+#define M 256ULL //2^8
 
 struct databaseS
 {
@@ -371,22 +369,15 @@ struct databaseS
 	    fprintf(stderr, "Failed to initialize pattern database S.\n");
 	    exit(0);
 	}
-	
-	for (int i = 0; i < N; i++)
-	    for (int j = 0; j < (M >> 1); j++)
-		fscanf(in, "%hhu", &T1[i][j]);
-	
-	for (int i = 0; i < N; i++)
-	    for (int j = 0; j < (M >> 1); j++)
-		fscanf(in, "%hhu", &T2[i][j]);
-	
+	fread(T1, N * (M >> 1), 1, in);
+	fread(T2, N * (M >> 1), 1, in);
 	fclose(in);
 	
 	memset(com, 0, sizeof(com));
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < NUM; i++)
 	    for (int j = 0; j < 11; j++)
-		com[i][j] = combination(11 - j, 5 - i);
+		com[i][j] = combination(11 - j, NUM - 1 - i);
     }
     
     inline uc load1(ull k)
@@ -399,53 +390,57 @@ struct databaseS
     inline uc load2(ull k)
     {
 	ui idx1, idx2;
-	trans(k >> 30); index(idx1, idx2);
+	trans(k >> ((12 - NUM) * 5)); index(idx1, idx2);
 	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
     uc T1[N][M >> 1], T2[N][M >> 1];
-    ui com[6][12]; //com: some numbers of combinations
-    bool s[12]; uc tmp[6];
+    ui com[NUM][12]; //com: some numbers of combinations
+    bool s[12]; uc tmp[NUM];
+
+    inline void trans(ull k)
+    {
+        tmp[0] = k & MASK5;
+	tmp[1] = (k >> 5) & MASK5;
+	tmp[2] = (k >> 10) & MASK5;
+	tmp[3] = (k >> 15) & MASK5;
+	tmp[4] = (k >> 20) & MASK5;
+	tmp[5] = (k >> 25) & MASK5;
+	tmp[6] = (k >> 30) & MASK5;
+	tmp[7] = (k >> 35) & MASK5;
+    }
     
     inline void index(ui &idx1, ui &idx2)
     {
 	memset(s, 0, 12);
 	idx1 = idx2 = 0;
-		
-       	for (int i = 0; i < 6; i++)
+	
+	for (int i = 0; i < NUM; i++)
 	{
 	    idx2 += ((tmp[i] / 12) & 1) << i;
 	    tmp[i] %= 12, s[tmp[i]] = true;
 	}
 	
 	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
-		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5])) * 120;
+		 (tmp[0] > tmp[4]) + (tmp[0] > tmp[5]) + (tmp[0] > tmp[6]) +
+		 (tmp[0] > tmp[7])) * 5040;
 	idx1 += ((tmp[1] > tmp[2]) + (tmp[1] > tmp[3]) + (tmp[1] > tmp[4]) +
-		 (tmp[1] > tmp[5])) * 24;
-	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5])) * 6;
-	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5])) * 2;
-	idx1 += tmp[4] > tmp[5];
+		 (tmp[1] > tmp[5]) + (tmp[1] > tmp[6]) + (tmp[1] > tmp[7])) * 720;
+	idx1 += ((tmp[2] > tmp[3]) + (tmp[2] > tmp[4]) + (tmp[2] > tmp[5]) +
+		 (tmp[2] > tmp[6]) + (tmp[2] > tmp[7])) * 120;
+	idx1 += ((tmp[3] > tmp[4]) + (tmp[3] > tmp[5]) + (tmp[3] > tmp[6]) +
+		 (tmp[3] > tmp[7])) * 24;
+	idx1 += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6]) + (tmp[4] > tmp[7])) * 6;
+	idx1 += ((tmp[5] > tmp[6]) + (tmp[5] > tmp[7])) * 2;
+	idx1 += (tmp[6] > tmp[7]);
 	
-	ui t = 0, i = 0, j = 0;
-	while (i < 6)
-	{
+	ui t = 0; uc i, j;
+	for (i = j = 0; i < NUM; j++)
 	    if (!s[j]) t += com[i][j];
 	    else i++;
-	    j++;
-	}
-
-	idx1 += t * 720; //6!
-    }
-
-    inline void trans(ull k)
-    {
-	tmp[0] = k & MASK5;
-	tmp[1] = (k >>= 5) & MASK5; 
-	tmp[2] = (k >>= 5) & MASK5;
-	tmp[3] = (k >>= 5) & MASK5;
-	tmp[4] = (k >>= 5) & MASK5;
-	tmp[5] = (k >>= 5) & MASK5;
+	
+	idx1 += t * 40320; //8!
     }
 };
 
