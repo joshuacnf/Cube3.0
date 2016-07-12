@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++11 -Ofast -Wno-unused-result -mcmodel=medium
 
-default: map.in databaseC.in databaseS.in IDA
+default: map.in IDA
 	./IDA
 
 map.in: TurnMap/genTurnMap
@@ -19,7 +19,7 @@ databaseS.in: PatternDB/genPatDB
 PatternDB/genPatDB: globals.h cube.h PatternDB/genPatDB.cpp
 	$(CC) PatternDB/genPatDB.cpp $(CFLAGS) -o PatternDB/genPatDB
 
-evalPatDB: map.in databaseC.in databaseS.in PatternDB/evalPatDB.cpp
+evalPatDB: map.in PatternDB/evalPatDB.cpp
 	$(CC) PatternDB/evalPatDB.cpp $(CFLAGS) -o PatternDB/evalPatDB
 	PatternDB/evalPatDB
 
