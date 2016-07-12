@@ -8,11 +8,13 @@
 #define DEPTH 20
 
 cube A;
-databaseS DBS;
 databaseC DBC;
+databaseS DBS;
 
 uc buffer[M1024] = {0};
-ull P[21], cnt, nodes_cnt, depth, d = 0;
+ui depth, d = 0;
+ull cnt, nodes_cnt;
+ull D[21], P[21][21];
 long double num[21][18], sum[21];
 
 void initSum()
@@ -34,13 +36,12 @@ void initSum()
 
 void loadDB(const char *file_name)
 {
-    cnt = 0;
     FILE *in; ull file_size;
 
     in = fopen(file_name, "rb");
     fseek(in, 0, SEEK_END);
     file_size = ftell(in);
-
+    
     fseek(in, 0, SEEK_SET);
     while (file_size)
     {
@@ -48,8 +49,8 @@ void loadDB(const char *file_name)
 	fread(buffer, block_size, 1, in);
 	for (int i = 0; i < block_size; i++)
 	{
-	    P[buffer[i] & MASK4]++;
-	    P[(buffer[i] >> 4) & MASK4]++;
+	    D[buffer[i] & MASK4]++;
+	    D[(buffer[i] >> 4) & MASK4]++;
 	}
 	cnt += block_size << 1;
 	file_size -= block_size;
@@ -60,18 +61,23 @@ void loadDB(const char *file_name)
 void DBInfo()
 {
     for (int i = 1; i < 21; i++)
-	P[i] += P[i - 1];
-    
+    	D[i] += D[i - 1];
+
     printf("Distribution Table:\n");
-    printf("Heuristic Value\t\tDistribution\n");
+    printf("h\tDistribution (%%)\tCumulative (%%)\n");
     for (int i = 0; i < 21; i++)
-	printf("%d\t\t\t%.4lf%%\n", i, P[i] / (double)cnt * 100.0);
+    {
+	double distribution = (D[i] - D[i - 1]) / (double)cnt * 100.0;
+	double cumulative_distribution = D[i] / (double)cnt * 100.0;
+	printf("%d\t%-16.4lf\t%.4lf\n", i, distribution, cumulative_distribution);
+    }
     printf("\n");
 }
 
 void init()
 {
-    memset(P, 0, sizeof(P));
+    cnt = 0;
+    memset(D, 0, sizeof(D));
     memset(num, 0, sizeof(num));
     memset(sum, 0, sizeof(sum));
 
@@ -82,13 +88,23 @@ void init()
     DBInfo();
 }
 
+void sample()
+{
+    
+}
+
+void scramble()
+{
+    for (int i = 0; i < 200; i++)
+	A.turn((uc)(rand() % 18));
+}
+
 void dfs(uc u)
 {
-    nodes_cnt++;
-
     if (DBC.load(A.C) + d > depth) return;
     if (DBS.load1(A.S) + d > depth) return;
     if (DBS.load2(A.S) + d > depth) return;
+    nodes_cnt++;
 
     ull S0, C0;
     for (uc v = 0; v < 18; v++)
@@ -103,24 +119,24 @@ void dfs(uc u)
 void work()
 {
     printf("Depth\t\tTheoretical\t\tExperimental\n");
-    for (depth = 10; depth <= DEPTH; depth++)
+    for (depth = 15; depth <= DEPTH; depth++)
     {
 	printf("%d\t\t", depth);
 	
 	nodes_cnt = 0;
 	for (int i = 0; i <= depth; i++)
-	    nodes_cnt += sum[i] * (P[depth - i] / (double)cnt);
-	printf("%llu\t\t\t", nodes_cnt);
-
+	    nodes_cnt += sum[i] * (D[depth - i] / (double)cnt);
+	printf("%-11llu\t\t", nodes_cnt);
+       	
 	ull avg = 0;
-	for (int t = 0; t < 100; t++)
+	for (int t = 0; t < 1; t++)
 	{
 	    nodes_cnt = 0;
-	    dfs(18);
+	    scramble(); dfs(18);
 	    avg += nodes_cnt;
 	}
-	nodes_cnt = (ull)(avg / 100.0);
-	printf("%llu\n", nodes_cnt);
+	nodes_cnt = (ull)(avg / 1.0);
+	printf("%-11llu\n", nodes_cnt);
     }
 }
 
