@@ -61,8 +61,8 @@ const bool G[19][18] =
 const ui revTurn[18] = { 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 12, 13, 14,
     15, 16, 17 };
 
-us sM[760][18] = {0};
-us cM[760][18] = {0};
+us sM[18][760] = {0};
+us cM[18][760] = {0};
 
 void __attribute__ ((constructor)) initTurnMap()
 {
@@ -73,12 +73,12 @@ void __attribute__ ((constructor)) initTurnMap()
 	return;
     }
 
-    for (int i = 0; i < 760; i++)
-        for (int j = 0; j < 18; j++)
+    for (int i = 0; i < 18; i++)
+        for (int j = 0; j < 760; j++)
             fscanf(in, "%hu", &sM[i][j]);
     
-    for (int i = 0; i < 760; i++)
-        for (int j = 0; j < 18; j++)
+    for (int i = 0; i < 18; i++)
+        for (int j = 0; j < 760; j++)
             fscanf(in, "%hu", &cM[i][j]);
     fclose(in);
 }

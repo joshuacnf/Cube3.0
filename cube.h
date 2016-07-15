@@ -27,11 +27,11 @@ struct cube
         
         for (i = 0; i < 40; i += 10)
         {
-            S0 |= ((ull)sM[(S >> i) & MASK10][u]) << i;
-            C0 |= ((ull)cM[(C >> i) & MASK10][u]) << i;
+            S0 |= ((ull)sM[u][(S >> i) & MASK10]) << i;
+            C0 |= ((ull)cM[u][(C >> i) & MASK10]) << i;
         }
         for (; i < 60; i += 10)
-            S0 |= ((ull)sM[(S >> i) & MASK10][u]) << i;
+            S0 |= ((ull)sM[u][(S >> i) & MASK10]) << i;
         
         S = S0, C = C0;
     }
