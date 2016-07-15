@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <ctime>
 #include <cmath>
-#include "cube.h"
+#include "../cube.h"
 
-database DB; cube A;
+cube A;
 ui cnt; uc maxd = 1, d = 0;
 
 void dfs(uc u)

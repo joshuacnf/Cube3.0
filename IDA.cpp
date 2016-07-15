@@ -19,7 +19,6 @@ ull avg_nodes = 0;
 
 void scramble()
 {
-    srand(time(0));
     uc u = 18, v;
     for (int i = 0; i < MAXTURN; i++)
     {
@@ -34,7 +33,7 @@ void scramble()
     for (int i = 0; i < MAXTURN; i++)
     {
     	printf("%s ", turnName[seq[i]].c_str());
-	if (i % 25 == 0) printf("\n");
+	if (i % 25 == 0 && i) printf("\n");
     }
     printf("\n");
 }
@@ -43,10 +42,19 @@ bool dfs(uc u)
 {
     nodes_cnt++;
     if (A.solved()) { len = d; return true; }
-    
-    if (DBC.load(A.C) + d > cutoff) return false;
-    if (DBS.load1(A.S) + d > cutoff) return false;
-    if (DBS.load2(A.S) + d > cutoff) return false;
+
+    if (cutoff - d >= 10)
+    {
+	if (DBS.load1(A.S) + d > cutoff) return false;
+	if (DBS.load2(A.S) + d > cutoff) return false;
+	if (DBC.load(A.C) + d > cutoff) return false;
+    }
+    else
+    {
+	if (DBC.load(A.C) + d > cutoff) return false;
+	if (DBS.load1(A.S) + d > cutoff) return false;
+	if (DBS.load2(A.S) + d > cutoff) return false;
+    }
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
@@ -109,7 +117,7 @@ void statistics(int T)
 
 int main()
 {
-    
+    srand(time(0));
     for (int T = 1; T <= 50; T++)
     {
 	printf("Trial #%d:\n", T);

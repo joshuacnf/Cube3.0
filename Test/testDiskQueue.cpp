@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <queue>
-#include "globals.h"
+#include "../globals.h"
 using namespace std;
 
 #define N M1024

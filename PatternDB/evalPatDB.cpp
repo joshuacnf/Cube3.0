@@ -17,6 +17,12 @@ ull cnt, nodes_cnt;
 ull D[21], P[21][21];
 long double num[21][18], sum[21];
 
+void scramble()
+{
+    for (int i = 0; i < 200; i++)
+	A.turn((uc)(rand() % 18));
+}
+
 void initSum()
 {
     num[0][0] = 1;
@@ -91,12 +97,6 @@ void init()
 void sample()
 {
     
-}
-
-void scramble()
-{
-    for (int i = 0; i < 200; i++)
-	A.turn((uc)(rand() % 18));
 }
 
 void dfs(uc u)

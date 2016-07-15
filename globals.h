@@ -20,6 +20,7 @@
 #define MASK10 0x3FFULL
 #define MASK15 0x7FFFULL
 #define MASK20 0xFFFFFULL
+#define MASK32 0xFFFFFFFFULL
 
 #define M128 0x8000000ULL
 #define M256 0x10000000ULL
@@ -60,8 +61,8 @@ const bool G[19][18] =
 const ui revTurn[18] = { 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 12, 13, 14,
     15, 16, 17 };
 
-us sM[18][760] = {0};
-us cM[18][760] = {0};
+us sM[760][18] = {0};
+us cM[760][18] = {0};
 
 void __attribute__ ((constructor)) initTurnMap()
 {
@@ -72,12 +73,12 @@ void __attribute__ ((constructor)) initTurnMap()
 	return;
     }
 
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 760; j++)
+    for (int i = 0; i < 760; i++)
+        for (int j = 0; j < 18; j++)
             fscanf(in, "%hu", &sM[i][j]);
     
-    for (int i = 0; i < 18; i++)
-        for (int j = 0; j < 760; j++)
+    for (int i = 0; i < 760; i++)
+        for (int j = 0; j < 18; j++)
             fscanf(in, "%hu", &cM[i][j]);
     fclose(in);
 }
@@ -296,7 +297,7 @@ struct databaseC
 {
     databaseC()
     { 
-	FILE *in = fopen("databaseC.in", "r");
+	FILE *in = fopen("databaseC.in", "rb");
 	if (!in)
 	{
 	    fprintf(stderr, "Failed to initialize pattern database C.\n");
@@ -309,11 +310,11 @@ struct databaseC
     inline uc load(ull k)
     {
 	ui idx = index(k);
-	return (T[cantor(k)][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
+	return (T[idx >> 1][cantor(k)] >> ((idx & 1) << 2)) & MASK4;
     }
 
 private:
-    uc T[N][M >> 1];
+    uc T[M >> 1][N];
         
     inline ui cantor(ull k)
     {
@@ -363,7 +364,7 @@ struct databaseS
 {
     databaseS()
     {
-	FILE *in = fopen("databaseS.in", "r");
+	FILE *in = fopen("databaseS.in", "rb");
 	if (!in)
 	{
 	    fprintf(stderr, "Failed to initialize pattern database S.\n");
@@ -384,18 +385,18 @@ struct databaseS
     {
 	ui idx1, idx2;
 	trans(k); index(idx1, idx2);
-	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	return (T1[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
 
     inline uc load2(ull k)
     {
 	ui idx1, idx2;
 	trans(k >> ((12 - NUM) * 5)); index(idx1, idx2);
-	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	return (T2[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
-    uc T1[N][M >> 1], T2[N][M >> 1];
+    uc T1[M >> 1][N], T2[M >> 1][N];
     ui com[NUM][12]; //com: some numbers of combinations
     bool s[12]; uc tmp[NUM];
 
@@ -414,7 +415,7 @@ private:
     inline void index(ui &idx1, ui &idx2)
     {
 	memset(s, 0, 12);
-	idx1 = idx2 = 0;
+	idx1 = 0, idx2 = 0;
 	
 	for (int i = 0; i < NUM; i++)
 	{

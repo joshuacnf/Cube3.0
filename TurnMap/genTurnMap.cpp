@@ -84,12 +84,12 @@ void write()
 {
     FILE *out = fopen("map.in", "w");
     
-    for (int i = 0; i < 18; i++)
-	for (int j = 0; j < 760; j++)
+    for (int j = 0; j < 760; j++)
+	for (int i = 0; i < 18; i++)
             fprintf(out, "%llu ", sM[i][j]);
     
-    for (int i = 0; i < 18; i++)
-	for (int j = 0; j < 760; j++)
+    for (int j = 0; j < 760; j++)
+	for (int i = 0; i < 18; i++)
 	    fprintf(out, "%llu ", cM[i][j]);
 
     fclose(out);

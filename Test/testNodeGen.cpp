@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "cube.h"
+#include "../cube.h"
 using namespace std;
 
 struct node

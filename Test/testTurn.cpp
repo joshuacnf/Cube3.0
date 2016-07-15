@@ -2,7 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <string>
-#include "cube.h"
+#include "../cube.h"
 using namespace std;
 
 #define N 100000000
