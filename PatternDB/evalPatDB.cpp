@@ -66,6 +66,8 @@ void loadDB(const char *file_name)
 
 void DBInfo()
 {
+    D[0] -= 40320; cnt -= 40320;
+
     for (int i = 1; i < 21; i++)
     	D[i] += D[i - 1];
 
@@ -94,16 +96,12 @@ void init()
     DBInfo();
 }
 
-void sample()
-{
-    
-}
-
 void dfs(uc u)
 {
     if (DBC.load(A.C) + d > depth) return;
     if (DBS.load1(A.S) + d > depth) return;
     if (DBS.load2(A.S) + d > depth) return;
+    
     nodes_cnt++;
 
     ull S0, C0;
@@ -119,23 +117,25 @@ void dfs(uc u)
 void work()
 {
     printf("Depth\t\tTheoretical\t\tExperimental\n");
-    for (depth = 15; depth <= DEPTH; depth++)
+    for (depth = 10; depth <= DEPTH; depth++)
     {
 	printf("%d\t\t", depth);
 	
 	nodes_cnt = 0;
 	for (int i = 0; i <= depth; i++)
-	    nodes_cnt += sum[i] * (D[depth - i] / (double)cnt);
+	    nodes_cnt += (ull)(sum[i] * (D[depth - i] / (long double)cnt));
 	printf("%-11llu\t\t", nodes_cnt);
-       	
+
+	
 	ull avg = 0;
-	for (int t = 0; t < 1; t++)
+	for (int t = 0; t < 25; t++)
 	{
 	    nodes_cnt = 0;
 	    scramble(); dfs(18);
 	    avg += nodes_cnt;
 	}
-	nodes_cnt = (ull)(avg / 1.0);
+	nodes_cnt = (ull)(avg / 25.0);
+	
 	printf("%-11llu\n", nodes_cnt);
     }
 }

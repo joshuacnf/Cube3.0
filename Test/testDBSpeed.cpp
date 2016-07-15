@@ -13,16 +13,6 @@ ui cnt;
 FILE *out;
 uc seq[N] = {0};
 
-void scramble(cube &C)
-{
-    uc u = 18, v;
-    for (int i = 0; i < 1; i++)
-    {
-	
-	C.turn(v); u = v;
-    }
-}
-
 void init()
 {
     srand(time(0));

@@ -3,12 +3,13 @@
 #include <cstdlib>
 #include "cube.h"
 
-#define MAXTURN 50
+#define MAXTURN 100
 
 cube A;
-databaseS DBS; databaseC DBC;
+databaseS DBS;
+databaseC DBC;
 
-ui nodes_cnt;
+ull nodes_cnt;
 uc cutoff, d;
 uc seq[MAXTURN] = {0}, ans[MAXTURN] = {0}, len;
 double time_cnt;
@@ -32,8 +33,8 @@ void scramble()
     printf("Scramble Sequence: %d turns\n", MAXTURN);
     for (int i = 0; i < MAXTURN; i++)
     {
-    	printf("%s ", turnName[seq[i]].c_str());
-	if (i % 25 == 0 && i) printf("\n");
+	if (i % 20 == 0 && i) printf("\n");
+	printf("%s ", turnName[seq[i]].c_str());
     }
     printf("\n");
 }
@@ -42,19 +43,20 @@ bool dfs(uc u)
 {
     nodes_cnt++;
     if (A.solved()) { len = d; return true; }
-
+/*
     if (cutoff - d >= 10)
     {
 	if (DBS.load1(A.S) + d > cutoff) return false;
 	if (DBS.load2(A.S) + d > cutoff) return false;
 	if (DBC.load(A.C) + d > cutoff) return false;
     }
-    else
-    {
-	if (DBC.load(A.C) + d > cutoff) return false;
-	if (DBS.load1(A.S) + d > cutoff) return false;
-	if (DBS.load2(A.S) + d > cutoff) return false;
-    }
+*/
+    //  else
+    //{
+    if (DBC.load(A.C) + d > cutoff) return false;
+    if (DBS.load1(A.S) + d > cutoff) return false;
+    if (DBS.load2(A.S) + d > cutoff) return false;
+    //}
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
@@ -62,7 +64,7 @@ bool dfs(uc u)
 	    ull S0 = A.S, C0 = A.C; d++; 
 	    A.turn(v); bool solved = dfs(v); 
 	    A.S = S0, A.C = C0; d--;
-
+	    
 	    if (solved)
 	    {
 		ans[d] = v;
@@ -84,7 +86,7 @@ void IDA()
     time_cnt = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
     
     printf("Time: %.2lf seconds\n", time_cnt);
-    printf("Nodes generated: %u (%u nodes/second)\n", nodes_cnt, (int)(nodes_cnt / time_cnt));
+    printf("Nodes generated: %llu (%llu nodes/second)\n", nodes_cnt, (ull)(nodes_cnt / time_cnt));
     printf("\n");
 }
 
@@ -127,7 +129,7 @@ int main()
 	check();
 	statistics(T);
 
-	printf("\n============================================================\n");
+	printf("\n==================================================================\n");
     }
     printf("\n");
     return 0;

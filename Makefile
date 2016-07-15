@@ -19,7 +19,7 @@ databaseS.in: PatternDB/genPatDB
 PatternDB/genPatDB: globals.h cube.h PatternDB/genPatDB.cpp
 	$(CC) PatternDB/genPatDB.cpp $(CFLAGS) -o PatternDB/genPatDB
 
-evalPatDB: PatternDB/evalPatDB.cpp
+PatternDB/evalPatDB: PatternDB/evalPatDB.cpp
 	$(CC) PatternDB/evalPatDB.cpp $(CFLAGS) -o PatternDB/evalPatDB
 	PatternDB/evalPatDB
 
@@ -51,5 +51,6 @@ clean:
 	-rm TurnMap/genTurnMap
 	-rm PatternDB/evalPatDB PatternDB/genPatDB
 	-rm queue0 queue1 queue2
-	-rm IDA Test/testTurn Test/testNodeGen Test/testSpeed Test/testDiskQueue
+	-rm IDA Test/testTurn Test/testNodeGen Test/testSpeed
+	-rm Test/testDBSpeed Test/testDiskQueue	
 	-rm *~ \#*\#

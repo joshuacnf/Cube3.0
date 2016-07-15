@@ -7,7 +7,7 @@
 using namespace std;
 
 #define N 40320ULL //8!
-#define M 2187ULL //3^7
+#define M 2188ULL //3^7 + 1
 
 struct databaseC_
 {
@@ -25,25 +25,24 @@ struct databaseC_
     {
 	cnt++;
 	ui idx = index(k);
-        T[cantor(k)][idx >> 1] |= v << ((idx & 1) << 2);
+        T[idx >> 1][cantor(k)] |= v << ((idx & 1) << 2);
     }
 
     inline uc load(ull k)
     {
 	ui idx = index(k);
-	return (T[cantor(k)][idx >> 1] >> ((idx & 1) << 2)) & MASK4;
+	return (T[idx >> 1][cantor(k)] >> ((idx & 1) << 2)) & MASK4;
     }
     
     void write()
     {
-        T[0][0] &= ~MASK4;
 	FILE *out = fopen("databaseC.in", "w");
-	fwrite(T, N * (M >> 1), 1, out);
+	fwrite(T, (M >> 1) * N, 1, out);
 	fclose(out);
     }
     
 private:
-    uc T[N][M]; ui cnt;
+    uc T[M >> 1][N]; ui cnt;
         
     inline ui cantor(ull k)
     {
@@ -112,7 +111,7 @@ struct databaseS_
 	cnt++;
 	ui idx1, idx2;
 	trans(k); index(idx1, idx2);
-	T1[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
+	T1[idx2 >> 1][idx1] |= v << ((idx2 & 1) << 2);
     }
     
     inline void store2(ull k, uc v)
@@ -120,35 +119,34 @@ struct databaseS_
 	cnt++;
 	ui idx1, idx2;	
 	trans(k >> ((12 - NUM) * 5)); index(idx1, idx2);
-	T2[idx1][idx2 >> 1] |= v << ((idx2 & 1) << 2);
+	T2[idx2 >> 1][idx1] |= v << ((idx2 & 1) << 2);
     }
 
     inline bool load1(ull k)
     {
 	ui idx1, idx2;
 	trans(k); index(idx1, idx2);
-	return (T1[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	return (T1[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
     inline bool load2(ull k)
     {
 	ui idx1, idx2;
 	trans(k >> ((12 - NUM) * 5)); index(idx1, idx2);
-	return (T2[idx1][idx2 >> 1] >> ((idx2 & 1) << 2)) & MASK4;
+	return (T2[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
     void write()
     {
-	T1[0][0] &= ~MASK4; T2[0][0] &= ~MASK4;
 	FILE *out = fopen("databaseS.in", "w");
-	fwrite(T1, N * (M >> 1), 1, out);
-	fwrite(T2, N * (M >> 1), 1, out);
+	fwrite(T1, (M >> 1) * N, 1, out);
+	fwrite(T2, (M >> 1) * N, 1, out);
 	fclose(out);
     }
     
 private:
-    uc T1[N][M >> 1], T2[N][M >> 1]; ull cnt;
-    uc tmp[NUM]; bool s[12]; ui com[NUM][12]; //com: some numbers of combinations    
+    uc T1[M >> 1][N], T2[M >> 1][N]; ull cnt;
+    uc tmp[NUM]; bool s[12]; ui com[NUM][12]; //com: some numbers of combinations
     
     inline void trans(ull k)
     {
@@ -247,7 +245,6 @@ void bfsC()
     
     cube A;
     Q.push(A.C); uQ.push(18); dQ.push(0);
-    DBC_.store(A.C, 0);
 
     ull C; uc u, d;
     while(!Q.empty())
@@ -271,6 +268,7 @@ void bfsC()
 	
 	updateStatusC();
     }
+    DBC_.store(A.C, 0);
     
     printf("Total Positions of 8 corner cubies: %d\n", DBC_.size());
     printf("Max Heuristic Value: %d\n", maxd);
@@ -284,7 +282,6 @@ void bfsS()
     cube A;
     
     Q.push(A.S); uQ.push(18); dQ.push(0);
-    DBS_.store1(A.S, 0);
 
     ull S; uc u, d;
     while(!Q.empty())
@@ -306,11 +303,11 @@ void bfsS()
 	    }
 	
 	updateStatusS();
-    } //T1
-    
+    }
+    DBS_.store1(A.S, 0); //T1
+
     
     Q.push(A.S); uQ.push(18); dQ.push(0);
-    DBS_.store2(A.S, 0);
 
     while(!Q.empty())
     {
@@ -331,8 +328,10 @@ void bfsS()
 	    }
 	
 	updateStatusS();
-    } //T2
+    }
+    DBS_.store2(A.S, 0); //T2
 
+    
     printf("Total Positions of 2 sets of %d side cubies: %llu\n", NUM, DBS_.size());
     printf("Max Heuristic Value: %d\n", maxd);
     printf("Time: %lf seconds\n", (clock() - st) / ((double)CLOCKS_PER_SEC));

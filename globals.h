@@ -291,7 +291,7 @@ private:
 
 
 #define N 40320ULL //8!: 40320
-#define M 2187ULL //3^7: 2187
+#define M 2188ULL //3^7: 2187
 
 struct databaseC
 {
@@ -303,7 +303,7 @@ struct databaseC
 	    fprintf(stderr, "Failed to initialize pattern database C.\n");
 	    exit(0);
 	}
-	fread(T, N * (M >> 1), 1, in);
+	fread(T, (M >> 1) * N, 1, in);
 	fclose(in);
     }
 
@@ -370,8 +370,8 @@ struct databaseS
 	    fprintf(stderr, "Failed to initialize pattern database S.\n");
 	    exit(0);
 	}
-	fread(T1, N * (M >> 1), 1, in);
-	fread(T2, N * (M >> 1), 1, in);
+	fread(T1, (M >> 1) * N, 1, in);
+	fread(T2, (M >> 1) * N, 1, in);
 	fclose(in);
 	
 	memset(com, 0, sizeof(com));
