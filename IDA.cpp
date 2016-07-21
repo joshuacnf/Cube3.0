@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "cube.h"
 
-#define MAXTURN 100
+#define MAXTURN 50
 
 cube A;
 databaseS DBS;

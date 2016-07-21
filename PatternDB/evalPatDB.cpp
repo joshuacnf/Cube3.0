@@ -12,19 +12,23 @@ databaseC DBC;
 databaseS DBS;
 
 uc buffer[M1024] = {0};
-ui depth, d = 0;
-ull cnt, nodes_cnt;
-ull D[21], P[21][21];
-long double num[21][18], sum[21];
+long double sum[21] = {0};
+
+ui depth;
+ull D[21] = {0}, nodes_cnt;
+ull P[21][21] = {0};
 
 void scramble()
 {
     for (int i = 0; i < 200; i++)
-	A.turn((uc)(rand() % 18));
+	A.turn((uc)((rand() % 1000007) % 18));
 }
 
 void initSum()
 {
+    long double num[21][18];
+    memset(num, 0, sizeof(num));
+    
     num[0][0] = 1;
     for (int i = 0; i < 18; i++)
 	num[1][i] = 1;
@@ -58,45 +62,24 @@ void loadDB(const char *file_name)
 	    D[buffer[i] & MASK4]++;
 	    D[(buffer[i] >> 4) & MASK4]++;
 	}
-	cnt += block_size << 1;
 	file_size -= block_size;
     }
     fclose(in);
 }
 
-void DBInfo()
+void writeDistributionTable(ull *T, FILE *out)
 {
-    D[0] -= 40320; cnt -= 40320;
-
-    for (int i = 1; i < 21; i++)
-    	D[i] += D[i - 1];
-
-    printf("Distribution Table:\n");
-    printf("h\tDistribution (%%)\tCumulative (%%)\n");
+    fprintf(out, "h\tDistribution (%%)\tCumulative (%%)\n");
     for (int i = 0; i < 21; i++)
     {
-	double distribution = (D[i] - D[i - 1]) / (double)cnt * 100.0;
-	double cumulative_distribution = D[i] / (double)cnt * 100.0;
-	printf("%d\t%-16.4lf\t%.4lf\n", i, distribution, cumulative_distribution);
+	double distribution = (T[i] - i?T[i - 1]:0) / (double)T[20] * 100.0;
+	double cumulative_distribution = T[i] / (double)T[20] * 100.0;
+	fprintf(out, "%d\t%-16.4lf\t%.4lf\n", i, distribution, cumulative_distribution);
     }
-    printf("\n");
+    fprintf(out, "\n");
 }
 
-void init()
-{
-    cnt = 0;
-    memset(D, 0, sizeof(D));
-    memset(num, 0, sizeof(num));
-    memset(sum, 0, sizeof(sum));
-
-    initSum();
-    loadDB("databaseC.in");
-    loadDB("databaseS.in");
-    
-    DBInfo();
-}
-
-void dfs(uc u)
+void dfs(uc u, uc d = 0)
 {
     if (DBC.load(A.C) + d > depth) return;
     if (DBS.load1(A.S) + d > depth) return;
@@ -108,25 +91,94 @@ void dfs(uc u)
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{
-	    S0 = A.S, C0 = A.C; d++;
-	    A.turn(v); dfs(v);
-	    A.S = S0, A.C = C0; d--;
+	    S0 = A.S, C0 = A.C;
+	    A.turn(v); dfs(v, d + 1);
+	    A.S = S0, A.C = C0;
 	}
+}
+
+void dfsRand(uc u, uc d = 0)
+{
+    uc h = 0;
+    h = max_(DBC.load(A.C), h);
+    h = max_(DBS.load1(A.S), h);
+    h = max_(DBS.load2(A.S), h);
+    P[d][h]++;
+    
+    if (d == 18) return;
+    
+    ull S0, C0;
+    for (int i = 0; i < 3; i++)
+    {
+	uc v;
+	do{
+	    v = (rand() % 1000007) % 18;
+	} while(!G[u][v]);
+	S0 = A.S, C0 = A.C;
+	A.turn(v); dfsRand(v, d + 1);
+	A.S = S0, A.C = C0;
+    }
+}
+
+void init()
+{
+    memset(D, 0, sizeof(D));
+    memset(sum, 0, sizeof(sum));
+    memset(P, 0, sizeof(P));
+
+    initSum();
+    printf("Loading database...\n");
+    loadDB("databaseC.in");
+    loadDB("databaseS.in");
+
+    D[0] -= 40320;
+    for (int i = 1; i < 21; i++) D[i] += D[i - 1];
+
+    FILE *out = fopen("disTable.out", "a");
+    fprintf(out, "Raw Distribution Table:\n");
+    writeDistributionTable(D, out);
+    fclose(out);
+}
+
+void sample()
+{
+    printf("Sampling...\n");
+    
+    for (int i = 1; i <= 100; i++)
+    {
+	scramble();
+	dfsRand(18, 0);
+	printf("Progress: %d%%\n", i);
+    }
+
+    FILE *out = fopen("disTable.out", "a");
+    for (int d = 1; d < 21; d++)
+    {
+	fprintf(out, "Distribution Table at depth %d:\n", d);
+	writeDistributionTable(P[d], out);
+    }
+    fclose(out);
 }
 
 void work()
 {
-    printf("Depth\t\tTheoretical\t\tExperimental\n");
+    printf("Depth\t\tTheoretical0\t\tTheoretical1\t\tExperimental\n");
     for (depth = 10; depth <= DEPTH; depth++)
     {
 	printf("%d\t\t", depth);
 	
 	nodes_cnt = 0;
 	for (int i = 0; i <= depth; i++)
-	    nodes_cnt += (ull)(sum[i] * (D[depth - i] / (long double)cnt));
-	printf("%-11llu\t\t", nodes_cnt);
+	    nodes_cnt += (ull)(sum[i] * (D[depth - i] / (long double)D[20]));
+	printf("%-12llu\t\t", nodes_cnt);
 
-	
+	nodes_cnt = 0;
+	for (int i = 0; i <= depth; i++)
+	    nodes_cnt += (ull)(sum[i] * (P[i][depth - i] / (long double)P[i][20]));
+	printf("%-12llu\t\t", nodes_cnt);
+
+	nodes_cnt = 0;
+	/*
 	ull avg = 0;
 	for (int t = 0; t < 25; t++)
 	{
@@ -134,7 +186,7 @@ void work()
 	    scramble(); dfs(18);
 	    avg += nodes_cnt;
 	}
-	nodes_cnt = (ull)(avg / 25.0);
+	nodes_cnt = (ull)(avg / 25.0);*/
 	
 	printf("%-11llu\n", nodes_cnt);
     }
@@ -143,6 +195,7 @@ void work()
 int main()
 {
     init();
+    sample();
     work();
     printf("\n");
     return 0;

@@ -190,7 +190,7 @@ private:
     FILE *handle; ull head, block_size;
     uc *buffer; char file_name[8]; ui recyc_cnt;
     
-#define PAGE_SIZE 134217728LLU //128M
+#define PAGE_SIZE M512 //128M
     inline void clear()
     {
 	fseek(handle, 0, SEEK_END);

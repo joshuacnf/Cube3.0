@@ -16,12 +16,11 @@ databaseC.in: PatternDB/genPatDB
 databaseS.in: PatternDB/genPatDB
 	PatternDB/genPatDB S
 
-PatternDB/genPatDB: globals.h cube.h PatternDB/genPatDB.cpp
+genPatDB: globals.h cube.h PatternDB/genPatDB.cpp
 	$(CC) PatternDB/genPatDB.cpp $(CFLAGS) -o PatternDB/genPatDB
 
-PatternDB/evalPatDB: PatternDB/evalPatDB.cpp
+evalPatDB: PatternDB/evalPatDB.cpp
 	$(CC) PatternDB/evalPatDB.cpp $(CFLAGS) -o PatternDB/evalPatDB
-	PatternDB/evalPatDB
 
 IDA: globals.h cube.h IDA.cpp
 	$(CC) IDA.cpp $(CFLAGS) -o IDA
