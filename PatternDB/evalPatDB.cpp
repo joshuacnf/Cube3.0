@@ -5,7 +5,7 @@
 #include "../cube.h"
 #include "../globals.h"
 
-#define DEPTH 20
+#define DEPTH 18
 
 cube A;
 databaseC DBC;
@@ -70,9 +70,9 @@ void loadDB(const char *file_name)
 void writeDistributionTable(ull *T, FILE *out)
 {
     fprintf(out, "h\tDistribution (%%)\tCumulative (%%)\n");
-    for (int i = 0; i < 21; i++)
+    for (int i = 1; i < 21; i++)
     {
-	double distribution = (T[i] - i?T[i - 1]:0) / (double)T[20] * 100.0;
+	double distribution = (T[i] - T[i - 1]) / (double)T[20] * 100.0;
 	double cumulative_distribution = T[i] / (double)T[20] * 100.0;
 	fprintf(out, "%d\t%-16.4lf\t%.4lf\n", i, distribution, cumulative_distribution);
     }
