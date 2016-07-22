@@ -27,7 +27,7 @@ int main()
 	
 	if ((us)a != (us)b)
 	{
-	    fprintf(stderr, "ERROR: %u %u\n", (us)a, (us)b);
+	    fprintf(stderr, "%d ERROR: %u %u\n", i, (us)a, (us)b);
 	    return 0;
 	}
 

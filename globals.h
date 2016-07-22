@@ -134,48 +134,121 @@ inline int maxint_(const int &x, const int &y)
     return (y & m) | (x & ~m);
 }
 
-/////////////////////////////////DATA STRUCTURES///////////////////////////////
+//////////////////////////////////DATA STRUCTURES///////////////////////////////
+
+struct mem_queue
+{
+    mem_queue(const ull &block_size_,
+	      const ull &mem_usg_ = M1024):
+	block_size(block_size_), head(0), tail(0), cnt(0)
+    {
+	array_len = (mem_usg_ / block_size) * block_size;
+	T = (char*)malloc(array_len);
+    }
+
+    ~mem_queue()
+    {
+	free(T);
+    }
+
+    inline bool empty()
+    {
+	return !cnt;
+    }
+
+    inline bool full()
+    {
+	return cnt && head == tail;
+    }
+    
+    inline ull front()
+    {
+	return *((ull*)(T + head));
+    }
+    
+    inline void push(ull x)
+    {	
+	memcpy(T + tail, (char*)(&x), block_size);
+	tail += block_size; cnt++;
+	if (tail == array_len) tail = 0;
+    }
+    
+    inline void pop()
+    {
+	head += block_size; cnt--;
+	if (head == array_len) head = 0;
+    }
+
+    inline void write(FILE *out)
+    {
+	fwrite(T + head, array_len - head, 1, out);
+	fwrite(T, tail, 1, out);
+	head = tail = 0;
+    }
+    
+private:
+    char *T;
+    ull head, tail, cnt;
+    ull array_len, block_size;
+};
 
 ui DISK_QUEUE_ID = 0;
 
 struct disk_queue
 {
     disk_queue(const ui &block_size_):
-    block_size(block_size_), head(0), recyc_cnt(0)
+	buffer(block_size_),
+	block_size(block_size_), head(0), recyc_cnt(0)
     {
 	snprintf(file_name, 8, "queue%d", DISK_QUEUE_ID++);
 	handle = fopen(file_name, "wb+");
-	buffer = (uc*)malloc(block_size);
+	block = (uc*)malloc(block_size);
     }
-
+    
     ~disk_queue()
     {
 	fclose(handle);
 	remove(file_name);
-	free(buffer);
+	free(block);
     }
     
     inline bool empty()
     {
-	fseek(handle, head, SEEK_SET);
-	return getc(handle) == EOF;
+	return buffer.empty();
     }
 
     inline ull front()
     {
+	if (file_empty())
+	    return buffer.front();
+	
 	fseek(handle, head, SEEK_SET);
-	fread(buffer, block_size, 1, handle);
-	return *((ull*)buffer);
+	fread(block, block_size, 1, handle);
+	return *((ull*)block);
     }
 
     inline void push(ull x)
     {
-	fseek(handle, 0, SEEK_END);
+	if (buffer.full())
+	{
+	    fseek(handle, 0, SEEK_END);
+	    buffer.write(handle);
+	}
+	buffer.push(x);
+	/*
+	
 	fwrite(&x, block_size, 1, handle);
+	*/
     }
 
     inline void pop()
     {
+	if (file_empty())
+	{
+	    buffer.pop();
+	    return;
+	}
+	
 	head += block_size;
 	recyc_cnt += block_size;
 	
@@ -187,10 +260,17 @@ struct disk_queue
     }
     
 private:
-    FILE *handle; ull head, block_size;
-    uc *buffer; char file_name[8]; ui recyc_cnt;
+    FILE *handle; char file_name[8];
+    ull head, block_size, recyc_cnt; uc *block;
+    mem_queue buffer;
+
+    inline bool file_empty()
+    {
+	fseek(handle, head, SEEK_SET);
+	return getc(handle) == EOF;
+    }
     
-#define PAGE_SIZE M512 //128M
+#define PAGE_SIZE M512 //512M
     inline void clear()
     {
 	fseek(handle, 0, SEEK_END);
@@ -217,7 +297,6 @@ private:
 	rename("tmp", file_name);
     }
 #undef PAGE_SIZE
-
 };
 
 
