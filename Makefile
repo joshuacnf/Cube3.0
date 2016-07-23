@@ -10,11 +10,14 @@ map.in: TurnMap/genTurnMap
 TurnMap/genTurnMap: TurnMap/globals_.h TurnMap/cube_.h TurnMap/genTurnMap.cpp
 	$(CC) TurnMap/genTurnMap.cpp $(CFLAGS) -o TurnMap/genTurnMap
 
-databaseC.in: PatternDB/genPatDB
+databaseC.in: genPatDB
 	PatternDB/genPatDB C
 
-databaseS.in: PatternDB/genPatDB
+databaseS.in: genPatDB
 	PatternDB/genPatDB S
+
+databaseCS.in: genPatDB
+	PatternDB/genPatDB 2
 
 genPatDB: globals.h cube.h PatternDB/genPatDB.cpp
 	$(CC) PatternDB/genPatDB.cpp $(CFLAGS) -o PatternDB/genPatDB

@@ -108,6 +108,16 @@ inline void sort7(T *A)
 	    else break;
 }
 
+template <typename T>
+inline void sort4(T *A)
+{
+    for (int i = 1; i < 4; i++)
+	for (int j = i; j > 0; j--)
+	    if (A[j] < A[j - 1])
+		swap_(A[j], A[j - 1]);
+	    else break;
+}
+
 inline int fac_(int n)
 {
     int ans = 1;

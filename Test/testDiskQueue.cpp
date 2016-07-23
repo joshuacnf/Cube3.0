@@ -37,11 +37,12 @@ int main()
 	    Q.push(x);
 	    dQ.push(x);
 	}
+	fprintf(stderr, "%d\n", i);
     }
-
+    
     while (!Q.empty()) Q.pop();
     while (!dQ.empty()) dQ.pop();
-
+    
     for (int i = 0; i < N; i++)
     {
 	x = rand() % (1ULL << 30);
