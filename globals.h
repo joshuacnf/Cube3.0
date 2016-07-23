@@ -149,7 +149,7 @@ inline int maxint_(const int &x, const int &y)
 struct mem_queue
 {
     mem_queue(const ull &block_size_,
-	      const ull &mem_usg_ = M1024):
+	      const ull &mem_usg_ = M128):
 	block_size(block_size_), head(0), tail(0), cnt(0)
     {
 	array_len = (mem_usg_ / block_size) * block_size;
@@ -245,10 +245,6 @@ struct disk_queue
 	    buffer.write(handle);
 	}
 	buffer.push(x);
-	/*
-	
-	fwrite(&x, block_size, 1, handle);
-	*/
     }
 
     inline void pop()

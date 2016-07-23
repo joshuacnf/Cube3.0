@@ -298,7 +298,7 @@ private:
 	idx1S += tmpS[2] > tmpS[3];
 
 	idx1 = idx1 * 11880 + idx1S; //(12!)/(8!)
-	idx2 = idx2 * 81 + idx2S; //3^4
+	idx2 = idx2 * 16 + idx2S; //2^4
     }
 };
 
@@ -503,7 +503,7 @@ void bfsCS()
 	
 	updateStatusCS();
     }
-    DBCS_->store((A.S << 20) | (A.S & MASK20), 0);
+    DBCS_->store((A.S << 20) | (A.C & MASK20), 0);
     
     printf("Total Positions of 4 corner cubies & 4 side cubies: %llu\n", DBCS_->size());
     printf("Max Heuristic Value: %d\n", maxd);
@@ -515,9 +515,9 @@ int main(int argc, char *argv[])
 {
     switch(*argv[1])
     {
-	case 'C': DBC_ = new databaseC_; bfsC(); DBC_->write(); break;
-	case 'S': DBS_ = new databaseS_; bfsS(); DBS_->write(); break;
-	case '2': DBCS_ = new databaseCS_; bfsCS(); DBCS_->write(); break;
+	case 'C': DBC_ = new databaseC_; bfsC(); DBC_->write(); delete DBC_; break;
+	case 'S': DBS_ = new databaseS_; bfsS(); DBS_->write(); delete DBS_; break;
+	case '2': DBCS_ = new databaseCS_; bfsCS(); DBCS_->write(); delete DBCS_; break;
 	default: break;
     }
     printf("\n");
