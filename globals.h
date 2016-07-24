@@ -26,6 +26,11 @@
 #define M256 0x10000000ULL
 #define M512 0x20000000ULL
 #define M1024 0x40000000ULL
+#define G2 0x80000000ULL
+#define G4 0x100000000ULL
+#define G8 0x200000000ULL
+#define G16 0x400000000ULL
+#define G32 0x800000000ULL
 
 typedef unsigned int ui;
 typedef unsigned long long ull;
@@ -149,7 +154,7 @@ inline int maxint_(const int &x, const int &y)
 struct mem_queue
 {
     mem_queue(const ull &block_size_,
-	      const ull &mem_usg_ = M128):
+	      const ull &mem_usg_ = M512):
 	block_size(block_size_), head(0), tail(0), cnt(0)
     {
 	array_len = (mem_usg_ / block_size) * block_size;
@@ -206,8 +211,9 @@ ui DISK_QUEUE_ID = 0;
 
 struct disk_queue
 {
-    disk_queue(const ui &block_size_):
-	buffer(block_size_),
+    disk_queue(const ui &block_size_,
+	       const ull &mem_usg_ = M512):
+	buffer(block_size_, mem_usg_),
 	block_size(block_size_), head(0), recyc_cnt(0)
     {
 	snprintf(file_name, 8, "queue%d", DISK_QUEUE_ID++);

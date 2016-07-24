@@ -316,8 +316,8 @@ databaseCS_ *DBCS_ = 0;
 //disk_queue Q(8);
 //disk_queue uQ(1), dQ(1); //for databaseS.in
 
-disk_queue Q(5);
-disk_queue uQ(1), dQ(1); //for databaseCS.in
+disk_queue Q(5, M512);
+disk_queue uQ(1, M128), dQ(1, M128); //for databaseCS.in
 
 clock_t time_cnt, st;
 uc maxd = 0;
@@ -371,7 +371,7 @@ inline void updateStatusCS()
     if ((clock() - time_cnt) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     time_cnt = clock();
-    printf("Corner&Side Database: %.2lf%%\n", DBCS_->size() / (double)25866086400);
+    printf("Corner&Side Database: %.2lf%%\n", DBCS_->size() / (double)258660864);
 }
 
 void bfsC()
