@@ -264,7 +264,7 @@ struct disk_queue
 	head += block_size;
 	recyc_cnt += block_size;
 	
-	if (recyc_cnt > M1024)
+	if (recyc_cnt > G4)
 	{
 	    clear();
 	    recyc_cnt = 0;
@@ -275,10 +275,10 @@ private:
     FILE *handle; char file_name[8];
     ull head, block_size, recyc_cnt; uc *block;
     mem_queue buffer;
-
+    
     inline bool file_empty()
     {
-	fseek(handle, head, SEEK_SET);
+        fseek(handle, head, SEEK_SET);
 	return getc(handle) == EOF;
     }
     
