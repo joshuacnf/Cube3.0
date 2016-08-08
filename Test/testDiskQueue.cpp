@@ -4,10 +4,10 @@
 #include "../globals.h"
 using namespace std;
 
-#define N M1024
+#define N 10003333
 
-queue<us> Q;
-disk_queue dQ(2);
+queue<ull> Q;
+disk_queue dQ(5, 233333);
 
 int main()
 {
@@ -15,8 +15,8 @@ int main()
     
     for (int i = 0; i < N; i++)
     {
-	x = rand() % (1ULL << 30);
-	Q.push((us)x);
+	x = (ull)rand() * (ull)rand();
+	Q.push(x);
 	dQ.push(x);
     }
 
@@ -25,19 +25,18 @@ int main()
 	a = Q.front(); Q.pop();
 	b = dQ.front(); dQ.pop();
 	
-	if ((us)a != (us)b)
+	if ((a & MASK32) != (b & MASK32))
 	{
-	    fprintf(stderr, "%d ERROR: %u %u\n", i, (us)a, (us)b);
+	    fprintf(stderr, "%d ERROR: %llu %llu\n", i, a & MASK32, b & MASK32);
 	    return 0;
 	}
 
-	if (i % 20 == 0)
+	if (i % 5 == 0)
 	{
-	    x = rand() % (N << 2);
+	    x = (ull)rand() * (ull)rand();
 	    Q.push(x);
 	    dQ.push(x);
 	}
-	fprintf(stderr, "%d\n", i);
     }
     
     while (!Q.empty()) Q.pop();
@@ -45,8 +44,8 @@ int main()
     
     for (int i = 0; i < N; i++)
     {
-	x = rand() % (1ULL << 30);
-	Q.push((us)x);
+	x = (ull)rand() * (ull)rand();
+	Q.push(x);
 	dQ.push(x);
     }
 
@@ -55,15 +54,15 @@ int main()
 	a = Q.front(); Q.pop();
 	b = dQ.front(); dQ.pop();
 	
-	if ((us)a != (us)b)
+	if ((a & MASK32) != (b & MASK32))
 	{
-	    fprintf(stderr, "ERROR: %u %u\n", (us)a, (us)b);
+	    fprintf(stderr, "%d ERROR: %llu %llu\n", i, a & MASK32, b & MASK32);
 	    return 0;
 	}
-
-	if (i % 20 == 0)
+	
+	if (i % 5 == 0)
 	{
-	    x = rand() % (N << 2);
+	    x = (ull)rand() * (ull)rand();
 	    Q.push(x);
 	    dQ.push(x);
 	}

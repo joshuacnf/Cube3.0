@@ -56,3 +56,4 @@ clean:
 	-rm IDA Test/testTurn Test/testNodeGen Test/testSpeed
 	-rm Test/testDBSpeed Test/testDiskQueue	
 	-rm *~ \#*\#
+	-rm Test/*~ Test/\#*\#

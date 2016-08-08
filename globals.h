@@ -21,16 +21,21 @@
 #define MASK15 0x7FFFULL
 #define MASK20 0xFFFFFULL
 #define MASK32 0xFFFFFFFFULL
+#define MASK40 0xFFFFFFFFFFULL
 
+#define M32 0x2000000ULL
+#define M64 0x4000000ULL
 #define M128 0x8000000ULL
 #define M256 0x10000000ULL
 #define M512 0x20000000ULL
 #define M1024 0x40000000ULL
+#define G1 0x40000000ULL
 #define G2 0x80000000ULL
 #define G4 0x100000000ULL
 #define G8 0x200000000ULL
 #define G16 0x400000000ULL
 #define G32 0x800000000ULL
+#define G64 0x1000000000ULL
 
 typedef unsigned int ui;
 typedef unsigned long long ull;
@@ -168,12 +173,17 @@ struct mem_queue
 
     inline bool empty()
     {
-	return !cnt;
+	return cnt == 0;
     }
 
     inline bool full()
     {
 	return cnt && head == tail;
+    }
+
+    inline ull size()
+    {
+	return cnt;
     }
     
     inline ull front()
@@ -194,11 +204,12 @@ struct mem_queue
 	if (head == array_len) head = 0;
     }
 
-    inline void write(FILE *out)
+    inline ull write(FILE *out)
     {
 	fwrite(T + head, array_len - head, 1, out);
 	fwrite(T, tail, 1, out);
-	head = tail = 0;
+	head = tail = cnt = 0;
+	return array_len;
     }
     
 private:
@@ -214,7 +225,7 @@ struct disk_queue
     disk_queue(const ui &block_size_,
 	       const ull &mem_usg_ = M512):
 	buffer(block_size_, mem_usg_),
-	block_size(block_size_), head(0), recyc_cnt(0)
+	block_size(block_size_), head(0), tail(0), cnt(0)
     {
 	snprintf(file_name, 8, "queue%d", DISK_QUEUE_ID++);
 	handle = fopen(file_name, "wb+");
@@ -233,6 +244,21 @@ struct disk_queue
 	return buffer.empty();
     }
 
+    inline ull size()
+    {
+	return cnt;
+    }
+
+    inline ull mem_size()
+    {
+	return buffer.size();
+    }
+
+    inline ull disk_size()
+    {
+	return (tail - head) / block_size;
+    }
+
     inline ull front()
     {
 	if (file_empty())
@@ -245,68 +271,61 @@ struct disk_queue
 
     inline void push(ull x)
     {
+	cnt++;
 	if (buffer.full())
 	{
-	    fseek(handle, 0, SEEK_END);
-	    buffer.write(handle);
+	    fseek(handle, tail, SEEK_SET);
+	    tail += buffer.write(handle);
 	}
 	buffer.push(x);
     }
 
     inline void pop()
     {
+	cnt--;
 	if (file_empty())
 	{
 	    buffer.pop();
 	    return;
 	}
-	
 	head += block_size;
-	recyc_cnt += block_size;
 	
-	if (recyc_cnt > G4)
-	{
+	if (head / (double)(tail - head) > 0.1)
 	    clear();
-	    recyc_cnt = 0;
-	}
     }
     
 private:
     FILE *handle; char file_name[8];
-    ull head, block_size, recyc_cnt; uc *block;
+    ull head, tail, cnt;
+    ull block_size; uc *block;
     mem_queue buffer;
     
     inline bool file_empty()
     {
-        fseek(handle, head, SEEK_SET);
-	return getc(handle) == EOF;
+	return head == tail;
     }
     
 #define PAGE_SIZE M512 //512M
     inline void clear()
     {
-	fseek(handle, 0, SEEK_END);
-	ull end = ftell(handle), len = 0;
+	uc *tmp = (uc*)malloc(min_(tail - head, PAGE_SIZE));
 	
-	FILE *tmp = fopen("tmp", "wb+");
-	uc *buf = (uc*)malloc(min_(end, PAGE_SIZE));
-	while (head < end)
+	ull tail_ = 0, len = 0; 
+	while (head < tail)
 	{
-	    len = min_(end - head, PAGE_SIZE);
+	    len = min_(tail - head, PAGE_SIZE);
+	    
 	    fseek(handle, head, SEEK_SET);
+	    fread(tmp, len, 1, handle);
 	    
-	    fread(buf, len, 1, handle);
-	    fwrite(buf, len, 1, tmp);
+	    fseek(handle, tail_, SEEK_SET); 
+	    fwrite(tmp, len, 1, handle);
 	    
-	    head += len;
+	    head += len, tail_ += len;
 	}
-	free(buf);
-	
-	fclose(handle);
-	handle = tmp; head = 0;
-	
-	remove(file_name);
-	rename("tmp", file_name);
+
+	head = 0; tail = tail_;
+	free(tmp);
     }
 #undef PAGE_SIZE
 };

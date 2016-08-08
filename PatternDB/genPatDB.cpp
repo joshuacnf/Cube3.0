@@ -316,8 +316,8 @@ databaseCS_ *DBCS_ = 0;
 //disk_queue Q(8);
 //disk_queue uQ(1), dQ(1); //for databaseS.in
 
-disk_queue Q(5, M1024);
-disk_queue uQ(1, M256), dQ(1, M256); //for databaseCS.in
+disk_queue Q(5, G64);
+disk_queue uQ(1, G8 + G4 + G1), dQ(1, G8 + G4 + G1); //for databaseCS.in
 
 clock_t time_cnt, st;
 uc maxd = 0;
@@ -371,7 +371,9 @@ inline void updateStatusCS()
     if ((clock() - time_cnt) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     time_cnt = clock();
-    printf("Corner&Side Database: %.2lf%%\n", DBCS_->size() / (double)258660864);
+    printf("Corner & Side Database: %.2lf%% (%llu / %llu)\n", 
+	   DBCS_->size() / (double)258660864, DBCS_->size(), 25866086400ULL);
+    printf("Queue Size: %llu (Mem: %llu  Disk: %llu)\n\n", Q.size(), Q.mem_size(), Q.disk_size());
     if (maxd > 15) { fprintf(stderr, "Fatal Error: max heuristic value > 15\n"); exit(0); }
 }
 
