@@ -16,7 +16,7 @@ struct databaseC_
 	memset(T, 0, sizeof(T));
     }
     
-    inline ui size()
+    inline ull size()
     {
 	return cnt;
     }
@@ -42,7 +42,7 @@ struct databaseC_
     }
     
 private:
-    uc T[M >> 1][N]; ui cnt;
+    uc T[M >> 1][N]; ull cnt;
         
     inline ui cantor(ull k)
     {
@@ -310,14 +310,14 @@ databaseC_ *DBC_ = 0;
 databaseS_ *DBS_ = 0;
 databaseCS_ *DBCS_ = 0;
 
-//queue<ull> Q;
-//queue<uc> uQ, dQ; //for databaseC.in
+queue<ull> Q;
+queue<uc> uQ, dQ; //for databaseC.in
 
 //disk_queue Q(8);
 //disk_queue uQ(1), dQ(1); //for databaseS.in
 
-disk_queue Q(5, G64);
-disk_queue uQ(1, G8 + G4 + G1), dQ(1, G8 + G4 + G1); //for databaseCS.in
+//disk_queue Q(5, G64);
+//disk_queue uQ(1, G8 + G4 + G1), dQ(1, G8 + G4 + G1); //for databaseCS.in
 
 clock_t time_cnt, st;
 uc maxd = 0;
@@ -355,7 +355,10 @@ inline void updateStatusC()
     if ((clock() - time_cnt) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     time_cnt = clock();
-    printf("Corner Database: %.2lf%%\n", DBC_->size() / (double)881798.4);
+    printf("Corner Database: %.2lf%% (%llu / %llu)\n", 
+	   DBC_->size() / (double)881798.4, DBC_->size(), 88179840ULL);
+    printf("Queue Size: %lu\n\n", Q.size());
+    if (maxd > 15) { fprintf(stderr, "Fatal Error: max heuristic value > 15\n"); exit(0); }
 }
 
 inline void updateStatusS()
@@ -363,7 +366,10 @@ inline void updateStatusS()
     if ((clock() - time_cnt) / (CLOCKS_PER_SEC * 1.0) <= 3) 
 	return;
     time_cnt = clock();
-    printf("Side Database: %.2lf%%\n", DBS_->size() / (double)102187008);
+    printf("Side Database: %.2lf%% (%llu / %llu)\n", 
+	   DBS_->size() / (double)102187008, DBS_->size(), 10218700800ULL);
+    //printf("Queue Size: %llu (Mem: %llu  Disk: %llu)\n\n", Q.size(), Q.mem_size(), Q.disk_size());
+    if (maxd > 15) { fprintf(stderr, "Fatal Error: max heuristic value > 15\n"); exit(0); }
 }
 
 inline void updateStatusCS()
@@ -373,13 +379,13 @@ inline void updateStatusCS()
     time_cnt = clock();
     printf("Corner & Side Database: %.2lf%% (%llu / %llu)\n", 
 	   DBCS_->size() / (double)258660864, DBCS_->size(), 25866086400ULL);
-    printf("Queue Size: %llu (Mem: %llu  Disk: %llu)\n\n", Q.size(), Q.mem_size(), Q.disk_size());
+    //printf("Queue Size: %llu (Mem: %llu  Disk: %llu)\n\n", Q.size(), Q.mem_size(), Q.disk_size());
     if (maxd > 15) { fprintf(stderr, "Fatal Error: max heuristic value > 15\n"); exit(0); }
 }
 
 void bfsC()
 {
-    printf("Genrating Pattern Database for corner cubies...\n");
+    printf("Genrating Pattern Database for corner cubies...\n\n");
     st = time_cnt = 0; maxd = 0;
     
     cube A;
@@ -409,14 +415,14 @@ void bfsC()
     }
     DBC_->store(A.C, 0);
     
-    printf("Total Positions of 8 corner cubies: %d\n", DBC_->size());
+    printf("Total Positions of 8 corner cubies: %llu\n", DBC_->size());
     printf("Max Heuristic Value: %d\n", maxd);
     printf("Time: %lf seconds\n", (clock() - st) / ((double)CLOCKS_PER_SEC));
 }
 
 void bfsS()
 {
-    printf("Genrating Pattern Database for side cubies...\n");
+    printf("Genrating Pattern Database for side cubies...\n\n");
     st = time_cnt = 0; maxd = 0;
     cube A;
     
@@ -435,7 +441,7 @@ void bfsS()
 		if (!DBS_->load1(S))
 		{
 		    DBS_->store1(S, d + 1);
-		    //maxd = max_(maxd, (uc)(d + 1));
+		    maxd = max_(maxd, (uc)(d + 1));
 		    Q.push(S); uQ.push(v); dQ.push(d + 1);
 		}
 		S = S0;
@@ -478,7 +484,7 @@ void bfsS()
 
 void bfsCS()
 {
-    printf("Genrating Pattern Database for 4 side cubies & 4 corner cubies...\n");
+    printf("Genrating Pattern Database for 4 side cubies & 4 corner cubies...\n\n");
     st = time_cnt = 0; maxd = 0;
     
     cube A;

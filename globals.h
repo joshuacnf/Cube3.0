@@ -572,7 +572,7 @@ struct databaseCS
 	    fprintf(stderr, "Failed to initialize pattern database CS.\n");
 	    exit(0);
 	}
-	fread(T, (M >> 1) * N, 1, out);
+	fread(T, (M >> 1) * N, 1, in);
 	fclose(in);
 	
 	for (int i = 0; i < 4; i++)
