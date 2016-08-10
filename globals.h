@@ -559,4 +559,99 @@ private:
 #undef M
 
 
+#define N 19958400ULL //(12!)/(8!) * (8!)/(4!)
+#define M 1296ULL //(2^4) * (3^4)
+
+struct databaseCS
+{
+    databaseCS()
+    {
+	FILE *in = fopen("databaseCS.in", "rb");
+	if (!in)
+	{
+	    fprintf(stderr, "Failed to initialize pattern database CS.\n");
+	    exit(0);
+	}
+	fread(T, (M >> 1) * N, 1, out);
+	fclose(in);
+	
+	for (int i = 0; i < 4; i++)
+	    for (int j = 0; j < 7; j++)
+		comC[i][j] = combination(7 - j, 3 - i);
+	
+	for (int i = 0; i < 4; i++)
+	    for (int j = 0; j < 11; j++)
+		comS[i][j] = combination(11 - j, 3 - i);
+    }
+    
+    inline uc load(ull C, ull S)
+    {
+	ui idx1, idx2;
+	trans(C, S); index(idx1, idx2);
+	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
+    }
+    
+private:
+    uc T[M >> 1][N];
+    uc tmpC[4], tmpS[4];
+    ui comC[4][8], comS[4][12]; //com: some numbers of combinations
+    bool srt[12];
+    
+    inline void trans(ull C, ull S)
+    {
+	tmpC[0] = C & MASK5;
+	tmpC[1] = (C >> 5) & MASK5;
+	tmpC[2] = (C >> 10) & MASK5;
+	tmpC[3] = (C >> 15) & MASK5;
+	
+	tmpS[0] = S & MASK5;
+	tmpS[1] = (S >> 5) & MASK5;
+	tmpS[2] = (S >> 10) & MASK5;
+	tmpS[3] = (S >> 15) & MASK5;
+    }
+    
+    inline void index(ui &idx1, ui &idx2)
+    {
+	idx1 = idx2 = 0;
+      	memset(srt, 0, 12);
+		
+	idx2 += (tmpC[0] >> 3) + (tmpC[1] >> 3) * 3 + (tmpC[2] >> 3) * 9 + (tmpC[3] >> 3) * 27;
+	srt[tmpC[0] &= 7] = srt[tmpC[1] &= 7] = srt[tmpC[2] &= 7] = srt[tmpC[3] &= 7] = true;
+	
+	uc i, j;
+	for (i = j = 0; i < 4; j++)
+	    if (!srt[j])
+		idx1 += comC[i][j];
+	    else i++;
+	idx1 *= 24; //4!
+	
+	idx1 += ((tmpC[0] > tmpC[1]) + (tmpC[0] > tmpC[2]) + (tmpC[0] > tmpC[3])) * 6;
+	idx1 += ((tmpC[1] > tmpC[2]) + (tmpC[1] > tmpC[3])) * 2;
+	idx1 += tmpC[2] > tmpC[3];
+	
+	ui idx1S = 0, idx2S = 0;
+	memset(srt, 0, 12);
+	
+	idx2S += (tmpS[0] / 12) + ((tmpS[1] / 12) << 1) + ((tmpS[2] / 12) << 2) + ((tmpS[3] / 12) << 3);
+	srt[tmpS[0] %= 12] = srt[tmpS[1] %= 12] = srt[tmpS[2] %= 12] = srt[tmpS[3] %= 12] = true;
+	
+	for (i = j = 0; i < 4; j++)
+	    if (!srt[j])
+		idx1S += comS[i][j];
+	    else i++;
+	idx1S *= 24; //4!
+	
+	idx1S += ((tmpS[0] > tmpS[1]) + (tmpS[0] > tmpS[2]) + (tmpS[0] > tmpS[3])) * 6;
+	idx1S += ((tmpS[1] > tmpS[2]) + (tmpS[1] > tmpS[3])) * 2;
+	idx1S += tmpS[2] > tmpS[3];
+	
+	idx1 = idx1 * 11880 + idx1S; //(12!)/(8!)
+	idx2 = idx2 * 16 + idx2S; //2^4
+    }
+};
+
+#undef N
+#undef M
+
+
 #endif /* globals_h */

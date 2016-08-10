@@ -6,8 +6,9 @@
 #define MAXTURN 50
 
 cube A;
-databaseS DBS;
 databaseC DBC;
+//databaseS DBS;
+databaseCS DBCS;
 
 ull nodes_cnt;
 uc cutoff, d;
@@ -43,20 +44,11 @@ bool dfs(uc u)
 {
     nodes_cnt++;
     if (A.solved()) { len = d; return true; }
-/*
-    if (cutoff - d >= 10)
-    {
-	if (DBS.load1(A.S) + d > cutoff) return false;
-	if (DBS.load2(A.S) + d > cutoff) return false;
-	if (DBC.load(A.C) + d > cutoff) return false;
-    }
-*/
-    //  else
-    //{
+    
     if (DBC.load(A.C) + d > cutoff) return false;
-    if (DBS.load1(A.S) + d > cutoff) return false;
-    if (DBS.load2(A.S) + d > cutoff) return false;
-    //}
+    //if (DBS.load1(A.S) + d > cutoff) return false;
+    //if (DBS.load2(A.S) + d > cutoff) return false;
+    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
