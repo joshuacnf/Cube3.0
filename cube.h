@@ -14,7 +14,7 @@ struct cube
         for (ull i = 0; i < 8; i++) C |= i << (5 * i);
     }
     
-    inline bool solved()
+    inline bool solved() const
     {
         return S == 0x05a928398a418820ULL &&
                 C == 0x000000398a418820ULL;

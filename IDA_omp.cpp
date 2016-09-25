@@ -4,17 +4,17 @@
 #include <queue>
 #include <unordered_map>
 #include <string>
+#include "omp.h"
 #include "cube.h"
 using namespace std;
 
-#define MAXTURN 50
+#define MAXTURN 15
 #define BFS_DEPTH 3
 #define STATE_NUM 5832
 
-//cube A;
 databaseC DBC;
-//databaseS DBS;
-databaseCS DBCS;
+databaseS DBS;
+//databaseCS DBCS;
 
 struct hashCube
 {
@@ -37,7 +37,7 @@ ui avg_len = 0;
 double avg_time = 0;
 ull avg_nodes = 0;
 
-void scramble()
+void scramble(cube &A)
 {
     uc u = 18, v;
     for (int i = 0; i < MAXTURN; i++)
@@ -48,7 +48,7 @@ void scramble()
 	seq[i] = v; A.turn(v);
 	u = v;
     }
-
+    
     printf("Scramble Sequence: %d turns\n", MAXTURN);
     for (int i = 0; i < MAXTURN; i++)
     {
@@ -56,39 +56,39 @@ void scramble()
 	printf("%s ", turnName[seq[i]].c_str());
     }
     printf("\n");
-
+    
     solved = false;
 }
 
-void bfs(cube B)
+void bfs(cube A)
 {
     path.clear();
-
-    path[B] = "";
-    cubeQ.push(B); dQ.push(0); uQ.push(18);
+    
+    path[A] = "";
+    cubeQ.push(A); dQ.push(0); uQ.push(18);
     
     uc d, u;
     while (1)
     {
 	if ((d = dQ.front()) == BFS_DEPTH) 
 	    break;
-	B = cubeQ.front(); u = uQ.front();
+	A = cubeQ.front(); u = uQ.front();
 	cubeQ.pop(); dQ.pop(); uQ.pop();
 	
 	ull C0, S0;
 	for (uc v = 0; v < 18; v++)
 	    if (G[u][v])
 	    {
-		cube B0 = B; B.turn(v);
-		if (path.find(B) == path.end())
+		cube A0 = A; A.turn(v);
+		if (path.find(A) == path.end())
 		{
-		    path[B] = (path[B0] + (char)(v));
-		    cubeQ.push(B); dQ.push(d + 1); uQ.push(v);
+		    path[A] = (path[A0] + (char)(v));
+		    cubeQ.push(A); dQ.push(d + 1); uQ.push(v);
 		}
-		B = B0;
+		A = A0;
 	    }
     }
-
+    
     state_num = 0;
     while (!cubeQ.empty())
     {
@@ -103,13 +103,17 @@ void bfs(cube B)
 bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
 {
     cnt = 1;
-    if (A.solved()) { ans[no][d] = -1; return true; }
+    if (A.solved())
+    {
+	ans[no][BFS_DEPTH + d] = -1;
+	return true;
+    }
     
     if (DBC.load(A.C) + d > cutoff) return false;
-    //if (DBS.load1(A.S) + d > cutoff) return false;
-    //if (DBS.load2(A.S) + d > cutoff) return false;
-    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
-
+    if (DBS.load1(A.S) + d > cutoff) return false;
+    if (DBS.load2(A.S) + d > cutoff) return false;
+    //if (DBCS.load(A.C, A.S) + d > cutoff) return false;
+    
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{
@@ -119,11 +123,11 @@ bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
 
 	    if (res)
 	    {
-		ans[no][d] = v;
+	        ans[no][BFS_DEPTH + d] = v;
 		return true;
 	    }
 	}
-
+    
     return false;
 }
 
@@ -132,6 +136,7 @@ void IDA_omp()
     printf("\nSearching...\n");
     
     clock_t s = clock();
+    ans_no = 0, ans_len = 0;
     nodes_cnt = 0, cutoff = 0;
     while (!solved)
     {
@@ -153,25 +158,25 @@ void IDA_omp()
     printf("\n");
 }
 
-void check()
+void check(cube A)
 {
-#define ans[ans_no] ans
-
+#define ans ans[ans_no]
+    
     for (ans_len = 0; ans[ans_len] != -1; ans_len++);
     for (int i = 0; i < ans_len; i++)
 	A.turn(ans[i]);
     
     if (A.solved())
     {
-	printf("Optimal Solution: %d turns\n", len);
-	for (int i = 0; i < len; i++)
+	printf("Optimal Solution: %d turns\n", ans_len);
+	for (int i = 0; i < ans_len; i++)
 	    printf("%s ", turnName[ans[i]].c_str());
 	printf("\n");
     }
     else printf("Cube not solved.\n");
     printf("\n");
 
-#undef ans[ans_no]
+#undef ans
 }
 
 void statistics(int T)
@@ -191,10 +196,12 @@ int main()
     for (int T = 1; T <= 50; T++)
     {
 	printf("Trial #%d:\n", T);
-	
-	scramble();
-	IDA();
-	check();
+
+	cube A;
+	scramble(A);
+	bfs(A);
+	IDA_omp();
+	check(A);
 	statistics(T);
 
 	printf("\n==================================================================\n");

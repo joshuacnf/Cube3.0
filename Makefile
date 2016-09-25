@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Ofast -Wno-unused-result #-mcmodel=medium
+CFLAGS = -std=c++11 -Ofast -Wno-unused-result -mcmodel=medium
 
 default: IDA
 	./IDA
@@ -56,7 +56,7 @@ clean:
 	-rm TurnMap/genTurnMap
 	-rm PatternDB/evalPatDB PatternDB/genPatDB
 	-rm queue0 queue1 queue2
-	-rm IDA IDA_OMP Test/testTurn Test/testNodeGen Test/testSpeed
+	-rm IDA IDA_omp Test/testTurn Test/testNodeGen Test/testSpeed
 	-rm Test/testDBSpeed Test/testDiskQueue	
 	-rm *~ \#*\#
 	-rm Test/*~ Test/\#*\#

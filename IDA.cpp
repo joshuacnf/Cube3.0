@@ -3,12 +3,12 @@
 #include <cstdlib>
 #include "cube.h"
 
-#define MAXTURN 50
+#define MAXTURN 15
 
 cube A;
 databaseC DBC;
-//databaseS DBS;
-databaseCS DBCS;
+databaseS DBS;
+//databaseCS DBCS;
 
 ull nodes_cnt;
 uc cutoff, d;
@@ -46,9 +46,9 @@ bool dfs(uc u)
     if (A.solved()) { len = d; return true; }
     
     if (DBC.load(A.C) + d > cutoff) return false;
-    //if (DBS.load1(A.S) + d > cutoff) return false;
-    //if (DBS.load2(A.S) + d > cutoff) return false;
-    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
+    if (DBS.load1(A.S) + d > cutoff) return false;
+    if (DBS.load2(A.S) + d > cutoff) return false;
+    //if (DBCS.load(A.C, A.S) + d > cutoff) return false;
 
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])

@@ -494,22 +494,23 @@ struct databaseS
     inline uc load1(ull k)
     {
 	ui idx1, idx2;
-	trans(k); index(idx1, idx2);
+	index(k, idx1, idx2);
 	return (T1[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
 
     inline uc load2(ull k)
     {
 	ui idx1, idx2;
-	trans(k >> ((12 - NUM) * 5)); index(idx1, idx2);
+	index(k >> ((12 - NUM) * 5), idx1, idx2);
 	return (T2[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
     uc T1[M >> 1][N], T2[M >> 1][N];
     ui com[NUM][12]; //com: some numbers of combinations
-    bool s[12]; uc tmp[NUM];
+    //bool s[12]; uc tmp[NUM];
 
+    /*
     inline void trans(ull k)
     {
         tmp[0] = k & MASK5;
@@ -521,10 +522,16 @@ private:
 	tmp[6] = (k >> 30) & MASK5;
 	tmp[7] = (k >> 35) & MASK5;
     }
+    */
     
-    inline void index(ui &idx1, ui &idx2)
+    inline void index(ull k, ui &idx1, ui &idx2)
     {
-	memset(s, 0, 12);
+	uc tmp[NUM] = {
+	    (uc)(k & MASK5), (uc)((k >> 5) & MASK5), (uc)((k >> 10) & MASK5),
+	    (uc)((k >> 15) & MASK5),
+	    (uc)((k >> 20) & MASK5), (uc)((k >> 25) & MASK5), (uc)((k >> 30) & MASK5),
+	    (uc)((k >> 35) & MASK5) };
+	bool s[12] = {0};
 	idx1 = 0, idx2 = 0;
 	
 	for (int i = 0; i < NUM; i++)
