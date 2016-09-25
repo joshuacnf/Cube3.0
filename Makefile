@@ -28,8 +28,8 @@ evalPatDB: PatternDB/evalPatDB.cpp
 IDA: globals.h cube.h IDA.cpp
 	$(CC) IDA.cpp $(CFLAGS) -o IDA
 
-IDA_OMP: globals.h cube.h IDA_omp.cpp
-	$(CC) IDA_omp.cpp $(CFLAGS) -fopenmp -o IDA_OMP
+IDA_omp: globals.h cube.h IDA_omp.cpp
+	$(CC) IDA_omp.cpp $(CFLAGS) -fopenmp -o IDA_omp
 
 
 Test/testTurn: globals.h cube.h Test/testTurn.cpp
