@@ -28,6 +28,9 @@ evalPatDB: PatternDB/evalPatDB.cpp
 IDA: globals.h cube.h IDA.cpp
 	$(CC) IDA.cpp $(CFLAGS) -o IDA
 
+IDA_OMP: globals.h cube.h IDA_omp.cpp
+	$(CC) IDA_omp.cpp $(CFLAGS) -fopenmp -o IDA_OMP
+
 
 Test/testTurn: globals.h cube.h Test/testTurn.cpp
 	cd Test; $(CC) testTurn.cpp $(CFLAGS) -o testTurn;
@@ -53,7 +56,7 @@ clean:
 	-rm TurnMap/genTurnMap
 	-rm PatternDB/evalPatDB PatternDB/genPatDB
 	-rm queue0 queue1 queue2
-	-rm IDA Test/testTurn Test/testNodeGen Test/testSpeed
+	-rm IDA IDA_OMP Test/testTurn Test/testNodeGen Test/testSpeed
 	-rm Test/testDBSpeed Test/testDiskQueue	
 	-rm *~ \#*\#
 	-rm Test/*~ Test/\#*\#

@@ -37,4 +37,9 @@ struct cube
     }
 };
 
+bool operator ==(const cube &A, const cube &B)
+{
+    return A.C == B.C && A.S == B.S;
+}
+
 #endif /* cube_h */
