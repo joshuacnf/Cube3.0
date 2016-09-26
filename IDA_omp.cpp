@@ -4,16 +4,16 @@
 #include <queue>
 #include <unordered_map>
 #include <string>
-#include "omp.h"
+#include <omp.h>
 #include "cube.h"
 using namespace std;
 
-#define MAXTURN 15
+#define MAXTURN 13
 #define BFS_DEPTH 3
 #define STATE_NUM 5832
 
 databaseC DBC;
-databaseS DBS;
+//databaseS DBS;
 //databaseCS DBCS;
 
 struct hashCube
@@ -110,8 +110,8 @@ bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
     }
     
     if (DBC.load(A.C) + d > cutoff) return false;
-    if (DBS.load1(A.S) + d > cutoff) return false;
-    if (DBS.load2(A.S) + d > cutoff) return false;
+    //if (DBS.load1(A.S) + d > cutoff) return false;
+    //if (DBS.load2(A.S) + d > cutoff) return false;
     //if (DBCS.load(A.C, A.S) + d > cutoff) return false;
     
     for (uc v = 0; v < 18; v++)
@@ -135,7 +135,7 @@ void IDA_omp()
 {
     printf("\nSearching...\n");
     
-    clock_t s = clock();
+    double start = omp_get_wtime();
     ans_no = 0, ans_len = 0;
     nodes_cnt = 0, cutoff = 0;
     while (!solved)
@@ -151,7 +151,7 @@ void IDA_omp()
 	}
 	cutoff++;
     }
-    time_cnt = (clock() - s) / (CLOCKS_PER_SEC * 1.0);
+    time_cnt = omp_get_wtime() - start;
     
     printf("Time: %.2lf seconds\n", time_cnt);
     printf("Nodes generated: %llu (%llu nodes/second)\n", nodes_cnt, (ull)(nodes_cnt / time_cnt));
