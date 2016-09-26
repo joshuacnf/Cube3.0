@@ -474,6 +474,33 @@ struct databaseS
 {
     databaseS()
     {
+	FILE *in;
+	char file_name[20]; int cnt = 0;
+
+	ull head = 0;
+	while (cnt < 2)
+	{
+	    snprintf(file_name, 20, "databaseS.in_%d", cnt);
+	    while (!(in = fopen(file_name, "rb")));
+	    head += fread((uc*)T1 + head, 1, (M >> 1) * N / 2, in);
+	    fclose(in); cnt++;
+	    remove(file_name);
+	    fprintf(stdout, "Successfully read %s (offset: %llu) \n", file_name, head);
+	    fflush(stdout);
+	}
+
+	head = 0;
+	while (cnt < 4)
+	{
+	    snprintf(file_name, 20, "databaseS.in_%d", cnt);
+	    while (!(in = fopen(file_name, "rb")));
+	    head += fread((uc*)T2 + head, 1, (M >> 1) * N / 2, in);
+	    fclose(in); cnt++;
+	    remove(file_name);
+	    fprintf(stdout, "Successfully read %s (offset: %llu) \n", file_name, head);
+	    fflush(stdout);
+	}
+	/*
 	FILE *in = fopen("databaseS.in", "rb");
 	if (!in)
 	{
@@ -483,6 +510,7 @@ struct databaseS
 	fread(T1, (M >> 1) * N, 1, in);
 	fread(T2, (M >> 1) * N, 1, in);
 	fclose(in);
+	*/
 	
 	memset(com, 0, sizeof(com));
 
@@ -573,6 +601,22 @@ struct databaseCS
 {
     databaseCS()
     {
+	FILE *in;
+	char file_name[20]; int cnt = 0;
+
+	ull head = 0;
+	while (cnt < 12)
+	{
+	    snprintf(file_name, 20, "databaseCS.in_%d", cnt);
+	    while (!(in = fopen(file_name, "rb")));
+	    head += fread((uc*)T + head, 1, (M >> 1) * N / 12, in);
+	    fclose(in); cnt++;
+	    remove(file_name);
+	    fprintf(stdout, "Successfully read %s (offset: %llu) \n", file_name, head);
+	    fflush(stdout);
+	}
+	
+	/*
 	FILE *in = fopen("databaseCS.in", "rb");
 	if (!in)
 	{
@@ -581,7 +625,7 @@ struct databaseCS
 	}
 	fread(T, (M >> 1) * N, 1, in);
 	fclose(in);
-	
+	*/
 	for (int i = 0; i < 4; i++)
 	    for (int j = 0; j < 7; j++)
 		comC[i][j] = combination(7 - j, 3 - i);
@@ -594,7 +638,7 @@ struct databaseCS
     inline uc load(ull C, ull S)
     {
 	ui idx1, idx2;
-	/*trans(C, S);*/ index(idx1, idx2);
+	/*trans(C, S);*/ index(C, S, idx1, idx2);
 	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     

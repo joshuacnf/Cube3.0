@@ -8,13 +8,13 @@
 #include "cube.h"
 using namespace std;
 
-#define MAXTURN 13
-#define BFS_DEPTH 3
-#define STATE_NUM 5832
+#define MAXTURN 50
+#define BFS_DEPTH 4
+#define STATE_NUM 104976
 
 databaseC DBC;
-//databaseS DBS;
-//databaseCS DBCS;
+databaseS DBS;
+databaseCS DBCS;
 
 struct hashCube
 {
@@ -110,9 +110,9 @@ bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
     }
     
     if (DBC.load(A.C) + d > cutoff) return false;
-    //if (DBS.load1(A.S) + d > cutoff) return false;
-    //if (DBS.load2(A.S) + d > cutoff) return false;
-    //if (DBCS.load(A.C, A.S) + d > cutoff) return false;
+    if (DBS.load1(A.S) + d > cutoff) return false;
+    if (DBS.load2(A.S) + d > cutoff) return false;
+    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
     
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
