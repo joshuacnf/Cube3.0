@@ -594,16 +594,16 @@ struct databaseCS
     inline uc load(ull C, ull S)
     {
 	ui idx1, idx2;
-	trans(C, S); index(idx1, idx2);
+	/*trans(C, S);*/ index(idx1, idx2);
 	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
 private:
     uc T[M >> 1][N];
-    uc tmpC[4], tmpS[4];
+    //uc tmpC[4], tmpS[4];
     ui comC[4][8], comS[4][12]; //com: some numbers of combinations
-    bool srt[12];
-    
+    //bool srt[12];
+    /*
     inline void trans(ull C, ull S)
     {
 	tmpC[0] = C & MASK5;
@@ -616,11 +616,15 @@ private:
 	tmpS[2] = (S >> 10) & MASK5;
 	tmpS[3] = (S >> 15) & MASK5;
     }
-    
-    inline void index(ui &idx1, ui &idx2)
+    */
+    inline void index(ull C, ull S, ui &idx1, ui &idx2)
     {
+	uc tmpC[4] = { (uc)(C & MASK5), (uc)((C >> 5) & MASK5), 
+		       (uc)((C >> 10) & MASK5), (uc)((C >> 15) & MASK5) };
+	uc tmpS[4] = { (uc)(S & MASK5), (uc)((S >> 5) & MASK5),
+		       (uc)((S >> 10) & MASK5), (uc)((S >> 15) & MASK5) };
+	bool srt[12] = {0};
 	idx1 = idx2 = 0;
-      	memset(srt, 0, 12);
 		
 	idx2 += (tmpC[0] >> 3) + (tmpC[1] >> 3) * 3 + (tmpC[2] >> 3) * 9 + (tmpC[3] >> 3) * 27;
 	srt[tmpC[0] &= 7] = srt[tmpC[1] &= 7] = srt[tmpC[2] &= 7] = srt[tmpC[3] &= 7] = true;
