@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <algorithm>
 #include <ctime>
 #include <cstdlib>
 #include <queue>
@@ -8,13 +9,13 @@
 #include "cube.h"
 using namespace std;
 
-#define MAXTURN 50
-#define BFS_DEPTH 4
-#define STATE_NUM 104976
+#define MAXTURN 100
+#define BFS_DEPTH OMP_BFS_DEPTH
+#define STATE_NUM OMP_STATE_NUM
 
 databaseC DBC;
 databaseS DBS;
-databaseCS DBCS;
+//databaseCS DBCS;
 
 struct hashCube
 {
@@ -28,10 +29,12 @@ queue<cube> cubeQ;
 unordered_map<cube, string, hashCube> path;
 
 bool solved;
-cube I[STATE_NUM]; ui state_num;
+cube I[STATE_NUM]; ui No[STATE_NUM], state_num;
+
 char seq[MAXTURN] = {0}, ans[STATE_NUM][20];
 ull nodes_cnt; ui cutoff, ans_no, ans_len;
 double time_cnt;
+
 
 ui avg_len = 0;
 double avg_time = 0;
@@ -92,16 +95,22 @@ void bfs(cube A)
     state_num = 0;
     while (!cubeQ.empty())
     {
+	No[state_num] = state_num;
 	I[state_num] = cubeQ.front();
 	for (int i = 0; i < BFS_DEPTH; i++)
 	    ans[state_num][i] = path[cubeQ.front()][i];
 	cubeQ.pop(); dQ.pop(); uQ.pop();
 	state_num++;
     }
+
+    for (int i = 0; i < state_num * 10; i++)
+	swap(No[random() % state_num], No[random() % state_num]);
 }
 
-bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
+bool dfs(us no, uc u, uc d, ull &cnt)
 {
+#define A I[no]
+
     cnt = 1;
     if (A.solved())
     {
@@ -110,16 +119,16 @@ bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
     }
     
     if (DBC.load(A.C) + d > cutoff) return false;
-    if (DBS.load1(A.S) + d > cutoff) return false;
-    if (DBS.load2(A.S) + d > cutoff) return false;
-    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
-    
+    if (DBS.load1(no, A.S) + d > cutoff) return false;
+    if (DBS.load2(no, A.S) + d > cutoff) return false;
+    //if (DBCS.load(no, A.C, A.S) + d > cutoff) return false;
+
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{
-	    cube A0 = A; A0.turn(v); ull cnt0;
-	    bool res = dfs(no, A0, v, d + 1, cnt0);
-	    cnt += cnt0;
+	    ull C0 = A.C, S0 = A.S, cnt0;
+	    A.turn(v); bool res = dfs(no, v, d + 1, cnt0);
+	    A.C = C0, A.S = S0, cnt += cnt0;
 
 	    if (res)
 	    {
@@ -129,6 +138,8 @@ bool dfs(const ui no, const cube &A, uc u, uc d, ull &cnt)
 	}
     
     return false;
+    
+#undef A
 }
 
 void IDA_omp()
@@ -144,9 +155,9 @@ void IDA_omp()
 	for (int i = 0; i < state_num; i++)
 	{
 	    if (solved) continue;
-	    ull cnt = 0;
-	    if (dfs(i, I[i], ans[i][BFS_DEPTH - 1], 0, cnt))
-		solved = true, ans_no = i;
+	    ull cnt = 0; us no = No[i];
+	    if (dfs(no, ans[no][BFS_DEPTH - 1], 0, cnt))
+		solved = true, ans_no = no;
 	    nodes_cnt += cnt;
 	}
 	cutoff++;

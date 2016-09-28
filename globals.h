@@ -37,6 +37,9 @@
 #define G32 0x800000000ULL
 #define G64 0x1000000000ULL
 
+#define OMP_BFS_DEPTH 4
+#define OMP_STATE_NUM 104976
+
 typedef unsigned int ui;
 typedef unsigned long long ull;
 typedef unsigned short us;
@@ -466,6 +469,9 @@ private:
 #undef N
 #undef M
 
+uc db_tmp[OMP_STATE_NUM][8];
+bool db_srt[OMP_STATE_NUM][12];
+
 #define NUM 8 //number of cubies
 #define N 19958400ULL //(12!)/(4!)
 #define M 256ULL //2^8
@@ -519,17 +525,17 @@ struct databaseS
 		com[i][j] = combination(11 - j, NUM - 1 - i);
     }
     
-    inline uc load1(ull k)
+    inline uc load1(us no, ull k)
     {
 	ui idx1, idx2;
-	index(k, idx1, idx2);
+	index(no, k, idx1, idx2);
 	return (T1[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
 
-    inline uc load2(ull k)
+    inline uc load2(us no, ull k)
     {
 	ui idx1, idx2;
-	index(k >> ((12 - NUM) * 5), idx1, idx2);
+	index(no, k >> ((12 - NUM) * 5), idx1, idx2);
 	return (T2[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
@@ -552,20 +558,26 @@ private:
     }
     */
     
-    inline void index(ull k, ui &idx1, ui &idx2)
+    inline void index(us no, ull k, ui &idx1, ui &idx2)
     {
-	uc tmp[NUM] = {
-	    (uc)(k & MASK5), (uc)((k >> 5) & MASK5), (uc)((k >> 10) & MASK5),
-	    (uc)((k >> 15) & MASK5),
-	    (uc)((k >> 20) & MASK5), (uc)((k >> 25) & MASK5), (uc)((k >> 30) & MASK5),
-	    (uc)((k >> 35) & MASK5) };
-	bool s[12] = {0};
+#define tmp db_tmp[no]
+#define srt db_srt[no]
+
+	tmp[0] = k & MASK5;
+	tmp[1] = (k >> 5) & MASK5;
+	tmp[2] = (k >> 10) & MASK5;
+	tmp[3] = (k >> 15) & MASK5;
+	tmp[4] = (k >> 20) & MASK5;
+	tmp[5] = (k >> 25) & MASK5;
+	tmp[6] = (k >> 30) & MASK5;
+	tmp[7] = (k >> 35) & MASK5;
+	memset(srt, 0, 12);
 	idx1 = 0, idx2 = 0;
 	
 	for (int i = 0; i < NUM; i++)
 	{
 	    idx2 += ((tmp[i] / 12) & 1) << i;
-	    tmp[i] %= 12, s[tmp[i]] = true;
+	    tmp[i] %= 12, srt[tmp[i]] = true;
 	}
 	
 	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3]) +
@@ -583,10 +595,13 @@ private:
 	
 	ui t = 0; uc i, j;
 	for (i = j = 0; i < NUM; j++)
-	    if (!s[j]) t += com[i][j];
+	    if (!srt[j]) t += com[i][j];
 	    else i++;
 	
 	idx1 += t * 40320; //8!
+
+#undef tmp
+#undef srt
     }
 };
 
@@ -635,10 +650,10 @@ struct databaseCS
 		comS[i][j] = combination(11 - j, 3 - i);
     }
     
-    inline uc load(ull C, ull S)
+    inline uc load(us no, ull C, ull S)
     {
 	ui idx1, idx2;
-	/*trans(C, S);*/ index(C, S, idx1, idx2);
+	index(no, C, S, idx1, idx2);
 	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
@@ -661,17 +676,26 @@ private:
 	tmpS[3] = (S >> 15) & MASK5;
     }
     */
-    inline void index(ull C, ull S, ui &idx1, ui &idx2)
+    
+    inline void index(us no, ull C, ull S, ui &idx1, ui &idx2)
     {
-	uc tmpC[4] = { (uc)(C & MASK5), (uc)((C >> 5) & MASK5), 
-		       (uc)((C >> 10) & MASK5), (uc)((C >> 15) & MASK5) };
-	uc tmpS[4] = { (uc)(S & MASK5), (uc)((S >> 5) & MASK5),
-		       (uc)((S >> 10) & MASK5), (uc)((S >> 15) & MASK5) };
-	bool srt[12] = {0};
+#define tmp db_tmp[no]
+#define srt db_srt[no]
+	
+	tmp[0] = C & MASK5;
+	tmp[1] = (C >> 5) & MASK5;
+	tmp[2] = (C >> 10) & MASK5;
+	tmp[3] = (C >> 15) & MASK5;
+	tmp[4] = S & MASK5;
+	tmp[5] = (S >> 5) & MASK5;
+	tmp[6] = (S >> 10) & MASK5;
+	tmp[7] = (S >> 15) & MASK5;
+
+	memset(srt, 0, 12);
 	idx1 = idx2 = 0;
 		
-	idx2 += (tmpC[0] >> 3) + (tmpC[1] >> 3) * 3 + (tmpC[2] >> 3) * 9 + (tmpC[3] >> 3) * 27;
-	srt[tmpC[0] &= 7] = srt[tmpC[1] &= 7] = srt[tmpC[2] &= 7] = srt[tmpC[3] &= 7] = true;
+	idx2 += (tmp[0] >> 3) + (tmp[1] >> 3) * 3 + (tmp[2] >> 3) * 9 + (tmp[3] >> 3) * 27;
+	srt[tmp[0] &= 7] = srt[tmp[1] &= 7] = srt[tmp[2] &= 7] = srt[tmp[3] &= 7] = true;
 	
 	uc i, j;
 	for (i = j = 0; i < 4; j++)
@@ -680,13 +704,27 @@ private:
 	    else i++;
 	idx1 *= 24; //4!
 	
-	idx1 += ((tmpC[0] > tmpC[1]) + (tmpC[0] > tmpC[2]) + (tmpC[0] > tmpC[3])) * 6;
-	idx1 += ((tmpC[1] > tmpC[2]) + (tmpC[1] > tmpC[3])) * 2;
-	idx1 += tmpC[2] > tmpC[3];
+	idx1 += ((tmp[0] > tmp[1]) + (tmp[0] > tmp[2]) + (tmp[0] > tmp[3])) * 6;
+	idx1 += ((tmp[1] > tmp[2]) + (tmp[1] > tmp[3])) * 2;
+	idx1 += tmp[2] > tmp[3];
 	
 	ui idx1S = 0, idx2S = 0;
 	memset(srt, 0, 12);
+
+	idx2S += (tmp[4] / 12) + ((tmp[5] / 12) << 1) + ((tmp[6] / 12) << 2) + ((tmp[7] / 12) << 3);
+	srt[tmp[4] %= 12] = srt[tmp[5] %= 12] = srt[tmp[6] %= 12] = srt[tmp[7] %= 12] = true;
 	
+	for (i = j = 0; i < 4; j++)
+	    if (!srt[j])
+		idx1S += comS[i][j];
+	    else i++;
+	idx1S *= 24; //4!
+	
+	idx1S += ((tmp[4] > tmp[5]) + (tmp[4] > tmp[6]) + (tmp[4] > tmp[7])) * 6;
+	idx1S += ((tmp[5] > tmp[6]) + (tmp[5] > tmp[7])) * 2;
+	idx1S += tmp[6] > tmp[7];
+
+	/*
 	idx2S += (tmpS[0] / 12) + ((tmpS[1] / 12) << 1) + ((tmpS[2] / 12) << 2) + ((tmpS[3] / 12) << 3);
 	srt[tmpS[0] %= 12] = srt[tmpS[1] %= 12] = srt[tmpS[2] %= 12] = srt[tmpS[3] %= 12] = true;
 	
@@ -699,9 +737,13 @@ private:
 	idx1S += ((tmpS[0] > tmpS[1]) + (tmpS[0] > tmpS[2]) + (tmpS[0] > tmpS[3])) * 6;
 	idx1S += ((tmpS[1] > tmpS[2]) + (tmpS[1] > tmpS[3])) * 2;
 	idx1S += tmpS[2] > tmpS[3];
+	*/
 	
 	idx1 = idx1 * 11880 + idx1S; //(12!)/(8!)
 	idx2 = idx2 * 16 + idx2S; //2^4
+
+#undef tmp
+#undef srt
     }
 };
 
