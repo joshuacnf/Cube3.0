@@ -594,7 +594,7 @@ struct databaseCS
     inline uc load(ull C, ull S)
     {
 	ui idx1, idx2;
-	/*trans(C, S);*/ index(idx1, idx2);
+	/*trans(C, S);*/ index(C, S, idx1, idx2);
 	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
