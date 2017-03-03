@@ -449,11 +449,11 @@ private:
 	
 	return idx;
     }
-
+    
     inline ui index(ull k)
     {
 	ui idx = 0;
-
+	
 	idx += ((k >>= 3) & 3);
 	idx += ((k >>= 5) & 3) * 3;
 	idx += ((k >>= 5) & 3) * 9;

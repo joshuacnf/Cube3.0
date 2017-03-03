@@ -15,7 +15,7 @@ using namespace std;
 
 databaseC DBC;
 databaseS DBS;
-//databaseCS DBCS;
+databaseCS DBCS;
 
 struct hashCube
 {
@@ -117,12 +117,13 @@ bool dfs(us no, uc u, uc d, ull &cnt)
 	ans[no][BFS_DEPTH + d] = -1;
 	return true;
     }
-    
-    if (DBC.load(A.C) + d > cutoff) return false;
-    if (DBS.load1(no, A.S) + d > cutoff) return false;
-    if (DBS.load2(no, A.S) + d > cutoff) return false;
-    //if (DBCS.load(no, A.C, A.S) + d > cutoff) return false;
+    if (d == cutoff) return false;
 
+    if (DBC.load(A.C) + d > cutoff) return false;
+    //if (DBS.load1(no, A.S) + d > cutoff) return false;
+    if (DBS.load2(no, A.S) + d > cutoff) return false;
+    if (DBCS.load(no, A.C, A.S) + d > cutoff) return false;
+	
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{

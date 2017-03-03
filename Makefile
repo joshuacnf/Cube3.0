@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Ofast -Wno-unused-result -mcmodel=medium -static-libstdc++
+CFLAGS = -std=c++11 -Ofast -Wno-unused-result -static-libstdc++ -mcmodel=medium
 
 default: IDA
 	./IDA
