@@ -38,7 +38,7 @@
 #define G64 0x1000000000ULL
 
 #define OMP_BFS_DEPTH 4
-#define OMP_STATE_NUM 104976
+#define OMP_MAX_THREAD_NUM 104976
 
 typedef unsigned int ui;
 typedef unsigned long long ull;
@@ -469,8 +469,8 @@ private:
 #undef N
 #undef M
 
-uc db_tmp[OMP_STATE_NUM][8];
-bool db_srt[OMP_STATE_NUM][12];
+//uc db_tmp[OMP_STATE_NUM][8];
+//bool db_srt[OMP_STATE_NUM][12];
 
 #define NUM 8 //number of cubies
 #define N 19958400ULL //(12!)/(4!)
@@ -525,17 +525,17 @@ struct databaseS
 		com[i][j] = combination(11 - j, NUM - 1 - i);
     }
     
-    inline uc load1(us no, ull k)
+    inline uc load1(ull k)
     {
 	ui idx1, idx2;
-	index(no, k, idx1, idx2);
+	index(k, idx1, idx2);
 	return (T1[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
-
-    inline uc load2(us no, ull k)
+    
+    inline uc load2(ull k)
     {
 	ui idx1, idx2;
-	index(no, k >> ((12 - NUM) * 5), idx1, idx2);
+	index(k >> ((12 - NUM) * 5), idx1, idx2);
 	return (T2[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
@@ -558,11 +558,12 @@ private:
     }
     */
     
-    inline void index(us no, ull k, ui &idx1, ui &idx2)
+    inline void index(ull k, ui &idx1, ui &idx2)
     {
-#define tmp db_tmp[no]
-#define srt db_srt[no]
-
+	//#define tmp db_tmp[no]
+	//#define srt db_srt[no]
+	uc tmp[8] = {}; bool srt[12] = {};
+	
 	tmp[0] = k & MASK5;
 	tmp[1] = (k >> 5) & MASK5;
 	tmp[2] = (k >> 10) & MASK5;
@@ -571,7 +572,7 @@ private:
 	tmp[5] = (k >> 25) & MASK5;
 	tmp[6] = (k >> 30) & MASK5;
 	tmp[7] = (k >> 35) & MASK5;
-	memset(srt, 0, 12);
+	//memset(srt, 0, 12);
 	idx1 = 0, idx2 = 0;
 	
 	for (int i = 0; i < NUM; i++)
@@ -600,8 +601,8 @@ private:
 	
 	idx1 += t * 40320; //8!
 
-#undef tmp
-#undef srt
+	//#undef tmp
+	//#undef srt
     }
 };
 
@@ -650,10 +651,10 @@ struct databaseCS
 		comS[i][j] = combination(11 - j, 3 - i);
     }
     
-    inline uc load(us no, ull C, ull S)
+    inline uc load(ull C, ull S)
     {
 	ui idx1, idx2;
-	index(no, C, S, idx1, idx2);
+	index(C, S, idx1, idx2);
 	return (T[idx2 >> 1][idx1] >> ((idx2 & 1) << 2)) & MASK4;
     }
     
@@ -677,10 +678,11 @@ private:
     }
     */
     
-    inline void index(us no, ull C, ull S, ui &idx1, ui &idx2)
+    inline void index(ull C, ull S, ui &idx1, ui &idx2)
     {
-#define tmp db_tmp[no]
-#define srt db_srt[no]
+	//#define tmp db_tmp[no]
+	//#define srt db_srt[no]
+	uc tmp[8] = {}; bool srt[12] = {};
 	
 	tmp[0] = C & MASK5;
 	tmp[1] = (C >> 5) & MASK5;
@@ -742,8 +744,8 @@ private:
 	idx1 = idx1 * 11880 + idx1S; //(12!)/(8!)
 	idx2 = idx2 * 16 + idx2S; //2^4
 
-#undef tmp
-#undef srt
+	//#undef tmp
+	//#undef srt
     }
 };
 

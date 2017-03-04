@@ -11,7 +11,7 @@ using namespace std;
 
 #define MAXTURN 100
 #define BFS_DEPTH OMP_BFS_DEPTH
-#define STATE_NUM OMP_STATE_NUM
+#define STATE_NUM OMP_MAX_THREAD_NUM
 
 databaseC DBC;
 databaseS DBS;
@@ -102,15 +102,13 @@ void bfs(cube A)
 	cubeQ.pop(); dQ.pop(); uQ.pop();
 	state_num++;
     }
-
+    
     for (int i = 0; i < state_num * 10; i++)
 	swap(No[random() % state_num], No[random() % state_num]);
 }
 
-bool dfs(us no, uc u, uc d, ull &cnt)
+bool dfs(us no, cube &A, uc u, uc d, ull &cnt)
 {
-#define A I[no]
-
     cnt = 1;
     if (A.solved())
     {
@@ -118,29 +116,34 @@ bool dfs(us no, uc u, uc d, ull &cnt)
 	return true;
     }
     if (d == cutoff) return false;
-
+    
+    
     if (DBC.load(A.C) + d > cutoff) return false;
-    //if (DBS.load1(no, A.S) + d > cutoff) return false;
-    if (DBS.load2(no, A.S) + d > cutoff) return false;
-    if (DBCS.load(no, A.C, A.S) + d > cutoff) return false;
-	
+    if (DBS.load1(A.S) + d > cutoff) return false;
+    if (DBS.load2(A.S) + d > cutoff) return false;
+    if (DBCS.load(A.C, A.S) + d > cutoff) return false;
+    
+
     for (uc v = 0; v < 18; v++)
 	if (G[u][v])
 	{
+	    bool res;
 	    ull C0 = A.C, S0 = A.S, cnt0;
-	    A.turn(v); bool res = dfs(no, v, d + 1, cnt0);
+	    
+	    A.turn(v);
+	    res = dfs(no, A, v, d + 1, cnt0);
 	    A.C = C0, A.S = S0, cnt += cnt0;
-
+	    
 	    if (res)
 	    {
 	        ans[no][BFS_DEPTH + d] = v;
 		return true;
 	    }
+
+	    if (solved) return false;
 	}
     
     return false;
-    
-#undef A
 }
 
 void IDA_omp()
@@ -152,15 +155,17 @@ void IDA_omp()
     nodes_cnt = 0, cutoff = 0;
     while (!solved)
     {
+	
 #pragma omp parallel for reduction (+:nodes_cnt)
 	for (int i = 0; i < state_num; i++)
 	{
 	    if (solved) continue;
 	    ull cnt = 0; us no = No[i];
-	    if (dfs(no, ans[no][BFS_DEPTH - 1], 0, cnt))
+	    if (dfs(no, I[no], ans[no][BFS_DEPTH - 1], 0, cnt))
 		solved = true, ans_no = no;
 	    nodes_cnt += cnt;
 	}
+	
 	cutoff++;
     }
     time_cnt = omp_get_wtime() - start;
@@ -187,11 +192,11 @@ void check(cube A)
     }
     else printf("Cube not solved.\n");
     printf("\n");
-
+    
 #undef ans
 }
 
-void statistics(int T)
+void statistics(int T = 1)
 {
     avg_len += ans_len;
     avg_time += time_cnt;
@@ -202,9 +207,8 @@ void statistics(int T)
     printf("Average solution length: %.1lf\n", avg_len / (double)T);
 }
 
-int main()
+void autoTest()
 {
-    srand(time(0));
     for (int T = 1; T <= 50; T++)
     {
 	printf("Trial #%d:\n", T);
@@ -218,6 +222,34 @@ int main()
 
 	printf("\n==================================================================\n");
     }
+}
+
+void solveCustomProblem()
+{
+    char F[6][3][3];
+    for (int t = 0; t < 6; t++)
+    {
+	for (int i = 0; i < 3; i++)
+	{
+	    for (int j = 0; j < 3; j++)
+		F[t][i][j] = getchar();
+	    getchar();
+	}
+	if (t < 5) getchar();
+    }
+
+    cube A;
+    A.encode(F);
+    bfs(A);
+    IDA_omp();
+    check(A);
+    statistics();
+}
+
+int main()
+{
+    srand(time(0));
+    solveCustomProblem();
     printf("\n");
     return 0;
 }
