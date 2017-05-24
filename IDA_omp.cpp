@@ -224,7 +224,7 @@ void autoTest()
     }
 }
 
-void solveCustomProblem()
+void solve()
 {
     char F[6][3][3];
     for (int t = 0; t < 6; t++)
@@ -249,7 +249,8 @@ void solveCustomProblem()
 int main()
 {
     srand(time(0));
-    solveCustomProblem();
+    //solve();
+    autoTest();
     printf("\n");
     return 0;
 }

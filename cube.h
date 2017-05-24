@@ -28,7 +28,7 @@ struct cube
     inline bool solved() const
     {
         return S == 0x05a928398a418820ULL &&
-        C == 0x000000398a418820ULL;
+	    C == 0x000000398a418820ULL;
     }
     
     inline void turn(uc u)
@@ -123,7 +123,7 @@ void transcode(char faces[6][3][3], ull &C, ull &S)
     pos = 0;
     str = ""; str += U[0][0]; str += B[0][2]; str += L[0][0]; sort(str.begin(), str.end());
     idx = m2[str]; t = m3c[idx];
-    if (U[0][0] == t) f = 'U'; else if (B[0][2] == t) f = 'B'; else f = 'C';
+    if (U[0][0] == t) f = 'U'; else if (B[0][2] == t) f = 'B'; else f = 'L';
     ori = orientation_corner_cubie(pos, f);
     C |= (pos + ori * 8ULL) << (idx * 5);
     

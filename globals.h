@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <map>
 
 //////////////////////////////MACROS & CONSTANTS///////////////////////
 
@@ -47,6 +48,11 @@ typedef unsigned char uc;
 
 const std::string turnName[] = { "F", "B", "U", "D", "L", "R", "F'", "B'",
     "U'", "D'", "L'", "R'", "FF", "BB", "UU", "DD", "LL", "RR" };
+
+std::map<std::string, int> turnCode =
+    {{"F", 0}, {"B", 1}, {"U", 2}, {"D", 3}, {"L", 4}, {"R", 5},
+     {"F'", 6}, {"B'", 7}, {"U'", 8}, {"D'", 9}, {"L'", 10}, {"R'", 11},
+     {"FF", 12}, {"BB", 13}, {"UU", 14}, {"DD", 15}, {"LL", 16}, {"RR", 17}};
 
 const bool G[19][18] =
 {
