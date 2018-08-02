@@ -59,8 +59,6 @@ void scramble(cube &A)
 	printf("%s ", turnName[seq[i]].c_str());
     }
     printf("\n");
-    
-    solved = false;
 }
 
 void bfs(cube A)
@@ -149,10 +147,12 @@ bool dfs(us no, cube &A, uc u, uc d, ull &cnt)
 void IDA_omp()
 {
     printf("\nSearching...\n");
-    
+
     double start = omp_get_wtime();
     ans_no = 0, ans_len = 0;
     nodes_cnt = 0, cutoff = 0;
+    solved = false;
+    
     while (!solved)
     {
 	
@@ -249,8 +249,9 @@ void solve()
 int main()
 {
     srand(time(0));
-    //solve();
-    autoTest();
+    while (1)
+	solve();
+    //autoTest();
     printf("\n");
     return 0;
 }
